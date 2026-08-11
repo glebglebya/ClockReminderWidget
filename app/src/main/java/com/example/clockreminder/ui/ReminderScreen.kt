@@ -21,12 +21,14 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -65,9 +67,18 @@ fun ReminderScreen(repo: ReminderRepository) {
     val settings = remember { WidgetSettingsRepository(context) }
     var circularStyle by remember { mutableStateOf(settings.getCircularStyle()) }
     var horizontalStyle by remember { mutableStateOf(settings.getHorizontalStyle()) }
+    var widgetThemeMode by remember { mutableStateOf(settings.getThemeMode()) }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Часы-напоминания") }) },
+        topBar = {
+            TopAppBar(
+                title = { Text("Часы-напоминания") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                )
+            )
+        },
         floatingActionButton = {
             FloatingActionButton(onClick = { editing = null; showDialog = true }) {
                 Icon(Icons.Filled.Add, contentDescription = "Добавить")
@@ -81,6 +92,40 @@ fun ReminderScreen(repo: ReminderRepository) {
         ) {
             // Секция настроек стиля виджета
             Column(Modifier.padding(16.dp)) {
+                Text("Тема виджета", style = MaterialTheme.typography.titleSmall)
+                Row(Modifier.fillMaxWidth()) {
+                    FilterChip(
+                        selected = widgetThemeMode == WidgetSettingsRepository.WidgetThemeMode.SYSTEM,
+                        onClick = {
+                            widgetThemeMode = WidgetSettingsRepository.WidgetThemeMode.SYSTEM
+                            settings.setThemeMode(widgetThemeMode)
+                            WidgetCommon.updateAllStyles(context)
+                        },
+                        label = { Text("Системная") }
+                    )
+                    Spacer(Modifier.width(4.dp))
+                    FilterChip(
+                        selected = widgetThemeMode == WidgetSettingsRepository.WidgetThemeMode.LIGHT,
+                        onClick = {
+                            widgetThemeMode = WidgetSettingsRepository.WidgetThemeMode.LIGHT
+                            settings.setThemeMode(widgetThemeMode)
+                            WidgetCommon.updateAllStyles(context)
+                        },
+                        label = { Text("Светлая") }
+                    )
+                    Spacer(Modifier.width(4.dp))
+                    FilterChip(
+                        selected = widgetThemeMode == WidgetSettingsRepository.WidgetThemeMode.DARK,
+                        onClick = {
+                            widgetThemeMode = WidgetSettingsRepository.WidgetThemeMode.DARK
+                            settings.setThemeMode(widgetThemeMode)
+                            WidgetCommon.updateAllStyles(context)
+                        },
+                        label = { Text("Темная") }
+                    )
+                }
+
+                Spacer(Modifier.height(8.dp))
                 Text("Стиль круглых часов", style = MaterialTheme.typography.titleSmall)
                 Row(Modifier.fillMaxWidth()) {
                     FilterChip(
@@ -140,7 +185,7 @@ fun ReminderScreen(repo: ReminderRepository) {
             }
 
             Spacer(Modifier.height(8.dp))
-            Box(Modifier.height(1.dp).fillMaxWidth().background(Color.Gray.copy(alpha = 0.2f)))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
             if (reminders.isEmpty()) {
                 Box(

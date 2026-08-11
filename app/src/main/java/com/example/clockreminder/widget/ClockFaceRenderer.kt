@@ -1,9 +1,11 @@
 package com.example.clockreminder.widget
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.os.Build
 import com.example.clockreminder.model.Reminder
 import java.time.LocalDate
 import java.time.LocalTime
@@ -23,9 +25,16 @@ object ClockFaceRenderer {
         STYLE_5  // Горизонтальный 24ч, подписи каждые 3 часа
     }
 
-    fun render(widthPx: Int, heightPx: Int, reminders: List<Reminder>, faceStyle: WidgetStyle = WidgetStyle.STYLE_1): Bitmap {
+    fun render(
+        context: Context,
+        widthPx: Int,
+        heightPx: Int,
+        reminders: List<Reminder>,
+        faceStyle: WidgetStyle = WidgetStyle.STYLE_1,
+        isDark: Boolean = true
+    ): Bitmap {
         if (faceStyle == WidgetStyle.STYLE_5) {
-            return renderHorizontal(widthPx, heightPx, reminders)
+            return renderHorizontal(context, widthPx, heightPx, reminders, isDark)
         }
 
         val sizePx = minOf(widthPx, heightPx)
@@ -38,27 +47,35 @@ object ClockFaceRenderer {
         val is12h = faceStyle == WidgetStyle.STYLE_3 || faceStyle == WidgetStyle.STYLE_4
         val cycle = if (is12h) 12.0 else 24.0
 
+        // Цвета Material 3 / Dynamic Colors
+        val bgColor = getDynamicColor(context, isDark, "surface", if (isDark) "#1C1B1F" else "#FFFBFE")
+        val ringColor = getDynamicColor(context, isDark, "outline", if (isDark) "#49454F" else "#CAC4D0")
+        val tickColor = getDynamicColor(context, isDark, "outlineVariant", if (isDark) "#938F99" else "#79747E")
+        val labelColor = getDynamicColor(context, isDark, "onSurface", if (isDark) "#FFFFFF" else "#000000")
+        val handColor = getDynamicColor(context, isDark, "onSurface", if (isDark) "#FFFFFF" else "#000000")
+        val accentColor = getDynamicColor(context, isDark, "primary", if (isDark) "#D0BCFF" else "#6750A4")
+
         // фон циферблата
         val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#1C1C1E")
+            color = bgColor
             style = Paint.Style.FILL
         }
         canvas.drawCircle(cx, cy, radius, bgPaint)
 
         val ringPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#3A3A3C")
+            color = ringColor
             style = Paint.Style.STROKE
             strokeWidth = sizePx * 0.02f
         }
         canvas.drawCircle(cx, cy, radius, ringPaint)
 
         val tickPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#444446")
+            color = tickColor
             strokeWidth = sizePx * 0.012f
             strokeCap = Paint.Cap.ROUND
         }
         val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.WHITE
+            color = labelColor
             textSize = sizePx * 0.07f
             textAlign = Paint.Align.CENTER
         }
@@ -121,7 +138,7 @@ object ClockFaceRenderer {
         val minuteAngle = Math.toRadians((now.minute / 60.0) * 360.0 - 90.0)
 
         val hourHandPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.WHITE
+            color = handColor
             strokeWidth = sizePx * 0.025f
             strokeCap = Paint.Cap.ROUND
         }
@@ -134,7 +151,7 @@ object ClockFaceRenderer {
         )
 
         val minuteHandPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#FF9500")
+            color = accentColor
             strokeWidth = sizePx * 0.015f
             strokeCap = Paint.Cap.ROUND
         }
@@ -146,18 +163,25 @@ object ClockFaceRenderer {
             minuteHandPaint
         )
 
-        val centerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.WHITE }
+        val centerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = handColor }
         canvas.drawCircle(cx, cy, sizePx * 0.025f, centerPaint)
 
 
         return bmp
     }
 
-    private fun renderHorizontal(width: Int, height: Int, reminders: List<Reminder>): Bitmap {
+    private fun renderHorizontal(context: Context, width: Int, height: Int, reminders: List<Reminder>, isDark: Boolean): Bitmap {
         val bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bmp)
         
-        val cornerRadius = height * 0.25f // Сбалансированное скругление
+        // Цвета Material 3 / Dynamic Colors
+        val bgColor = getDynamicColor(context, isDark, "surface", if (isDark) "#1C1B1F" else "#FFFBFE")
+        val ringColor = getDynamicColor(context, isDark, "outline", if (isDark) "#49454F" else "#CAC4D0")
+        val tickColor = getDynamicColor(context, isDark, "outlineVariant", if (isDark) "#938F99" else "#79747E")
+        val labelColor = getDynamicColor(context, isDark, "onSurface", if (isDark) "#FFFFFF" else "#000000")
+        val accentColor = getDynamicColor(context, isDark, "primary", if (isDark) "#D0BCFF" else "#6750A4")
+
+        val cornerRadius = height * 0.25f 
         val padding = width * 0.05f
         val scaleWidth = width - 2 * padding
         
@@ -169,26 +193,26 @@ object ClockFaceRenderer {
         
         // Фон
         val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#1C1C1E")
+            color = bgColor
             style = Paint.Style.FILL
         }
         canvas.drawRoundRect(0f, 0f, width.toFloat(), height.toFloat(), cornerRadius, cornerRadius, bgPaint)
 
         // Обводка
         val ringPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#3A3A3C")
+            color = ringColor
             style = Paint.Style.STROKE
-            strokeWidth = height * 0.04f.coerceAtMost(6f) // Не слишком толстая на больших высотах
+            strokeWidth = height * 0.04f.coerceAtMost(6f)
         }
         canvas.drawRoundRect(0f, 0f, width.toFloat(), height.toFloat(), cornerRadius, cornerRadius, ringPaint)
 
         val tickPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#444446")
+            color = tickColor
             strokeWidth = height * 0.02f.coerceAtMost(8f)
             strokeCap = Paint.Cap.ROUND
         }
         val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.WHITE
+            color = labelColor
             textSize = height * 0.25f.coerceAtMost(width * 0.06f)
             textAlign = Paint.Align.CENTER
         }
@@ -224,7 +248,7 @@ object ClockFaceRenderer {
         val indicatorX = padding + (nowFraction.toFloat() / 24f) * scaleWidth
         
         val indicatorPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.WHITE
+            color = accentColor
             style = Paint.Style.FILL
         }
         val indWidth = height * 0.05f.coerceAtMost(10f)
@@ -241,4 +265,21 @@ object ClockFaceRenderer {
         return bmp
     }
 
+    private fun getDynamicColor(context: Context, isDark: Boolean, name: String, fallback: String): Int {
+        if (Build.VERSION.SDK_INT >= 31) {
+            val colorResName = when(name) {
+                "primary" -> if (isDark) "system_accent1_200" else "system_accent1_600"
+                "surface" -> if (isDark) "system_neutral1_900" else "system_neutral1_10"
+                "onSurface" -> if (isDark) "system_neutral1_10" else "system_neutral1_900"
+                "outline" -> if (isDark) "system_neutral2_400" else "system_neutral2_600"
+                "outlineVariant" -> if (isDark) "system_neutral2_700" else "system_neutral2_300"
+                else -> null
+            }
+            if (colorResName != null) {
+                val resId = context.resources.getIdentifier(colorResName, "color", "android")
+                if (resId != 0) return context.getColor(resId)
+            }
+        }
+        return Color.parseColor(fallback)
+    }
 }

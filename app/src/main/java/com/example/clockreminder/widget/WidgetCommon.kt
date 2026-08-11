@@ -30,6 +30,14 @@ object WidgetCommon {
         val settings = WidgetSettingsRepository(context)
         val style = if (isHorizontal) settings.getHorizontalStyle() else settings.getCircularStyle()
         
+        val themeMode = settings.getThemeMode()
+        val isSystemDark = (context.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
+        val isDark = when (themeMode) {
+            WidgetSettingsRepository.WidgetThemeMode.SYSTEM -> isSystemDark
+            WidgetSettingsRepository.WidgetThemeMode.LIGHT -> false
+            WidgetSettingsRepository.WidgetThemeMode.DARK -> true
+        }
+
         CoroutineScope(Dispatchers.IO).launch {
             val reminders = AppDatabase.get(context).reminderDao().getAllEnabled()
             
@@ -57,9 +65,12 @@ object WidgetCommon {
                     (minHeightDp * density).toInt().coerceAtLeast(512)
                 }
                 
-                val bmp = ClockFaceRenderer.render(wPx, hPx, reminders, style)
+                val bmp = ClockFaceRenderer.render(context, wPx, hPx, reminders, style, isDark)
                 
                 val views = RemoteViews(context.packageName, layoutId)
+                // Для Material 3 на Android 12+ можно было бы использовать динамические цвета 
+                // через RemoteViews, но так как мы рисуем Bitmap, мы имитируем их в рендерере.
+                
                 views.setImageViewBitmap(R.id.widget_clock_image, bmp)
                 appWidgetManager.updateAppWidget(id, views)
             }

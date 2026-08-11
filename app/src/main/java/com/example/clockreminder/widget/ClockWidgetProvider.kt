@@ -4,7 +4,17 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 
+import android.content.Intent
+
 class ClockWidgetProvider : AppWidgetProvider() {
+
+    override fun onReceive(context: Context, intent: Intent) {
+        super.onReceive(context, intent)
+        // Обновляем при смене конфигурации (например, темы)
+        if (intent.action == Intent.ACTION_CONFIGURATION_CHANGED) {
+            updateAll(context)
+        }
+    }
 
     override fun onUpdate(
         context: Context,

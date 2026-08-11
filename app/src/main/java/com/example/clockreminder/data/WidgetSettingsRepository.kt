@@ -32,4 +32,21 @@ class WidgetSettingsRepository(context: Context) {
     fun setHorizontalStyle(style: ClockFaceRenderer.WidgetStyle) {
         prefs.edit { putString("horizontal_style", style.name) }
     }
+
+    enum class WidgetThemeMode {
+        SYSTEM, LIGHT, DARK
+    }
+
+    fun getThemeMode(): WidgetThemeMode {
+        val name = prefs.getString("theme_mode", WidgetThemeMode.SYSTEM.name)
+        return try {
+            WidgetThemeMode.valueOf(name!!)
+        } catch (_: Exception) {
+            WidgetThemeMode.SYSTEM
+        }
+    }
+
+    fun setThemeMode(mode: WidgetThemeMode) {
+        prefs.edit { putString("theme_mode", mode.name) }
+    }
 }

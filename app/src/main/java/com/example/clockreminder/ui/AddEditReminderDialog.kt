@@ -49,8 +49,13 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 private val PALETTE = listOf(
-    Color(0xFFFF3B30), Color(0xFF34C759), Color(0xFF007AFF),
-    Color(0xFFFF9500), Color(0xFFAF52DE), Color(0xFFFFCC00), Color(0xFF5AC8FA),
+    Color(0xFFD0BCFF), // Light Purple
+    Color(0xFFB4E0B1), // Light Green
+    Color(0xFFA1C9F4), // Light Blue
+    Color(0xFFFFB4AB), // Coral/Red
+    Color(0xFFFFD9E3), // Pink
+    Color(0xFFEADDFF), // Deep Purple
+    Color(0xFFC2E7FF), // Sky Blue
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
