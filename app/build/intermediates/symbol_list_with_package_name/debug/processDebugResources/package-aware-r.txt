@@ -1004,7 +1004,9 @@ string template_percent
 string tooltip_description
 string tooltip_label
 string widget_description
+string widget_description_style2
 string widget_label
+string widget_label_style2
 style AlertDialog_AppCompat
 style AlertDialog_AppCompat_Light
 style Animation_AppCompat_Dialog
@@ -1407,3 +1409,4 @@ styleable View android_theme android_focusable paddingEnd paddingStart theme
 styleable ViewBackgroundHelper android_background backgroundTint backgroundTintMode
 styleable ViewStubCompat android_id android_layout android_inflatedId
 xml widget_info
+xml widget_info_style2

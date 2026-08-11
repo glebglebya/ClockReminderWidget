@@ -35,6 +35,17 @@ object WidgetUpdateScheduler {
         )
     }
 
+    fun checkAndCancel(context: Context) {
+        val mgr = android.appwidget.AppWidgetManager.getInstance(context)
+        val ids1 = mgr.getAppWidgetIds(android.content.ComponentName(context, ClockWidgetProvider::class.java))
+        val ids2 = mgr.getAppWidgetIds(android.content.ComponentName(context, ClockWidgetStyle2Provider::class.java))
+        
+        if (ids1.isEmpty() && ids2.isEmpty()) {
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            alarmManager.cancel(pendingIntent(context))
+        }
+    }
+
     fun cancel(context: Context) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         alarmManager.cancel(pendingIntent(context))

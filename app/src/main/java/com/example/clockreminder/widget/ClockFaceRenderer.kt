@@ -17,7 +17,9 @@ import kotlin.math.sin
  */
 object ClockFaceRenderer {
 
-    fun render(sizePx: Int, reminders: List<Reminder>): Bitmap {
+    enum class WidgetStyle { STYLE_1, STYLE_2 }
+
+    fun render(sizePx: Int, reminders: List<Reminder>, faceStyle: WidgetStyle = WidgetStyle.STYLE_1): Bitmap {
         val bmp = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bmp)
         val cx = sizePx / 2f
@@ -52,7 +54,7 @@ object ClockFaceRenderer {
         for (h in 0 until 24) {
             val angle = Math.toRadians((h / 24.0) * 360.0 - 90.0)
             val outerR = radius * 0.98f
-            val innerR = if (h % 3 == 0) radius * 0.85f else radius * 0.92f
+            val innerR = radius * 0.92f
             val x1 = cx + outerR * cos(angle).toFloat()
             val y1 = cy + outerR * sin(angle).toFloat()
             val x2 = cx + innerR * cos(angle).toFloat()
@@ -60,17 +62,25 @@ object ClockFaceRenderer {
             canvas.drawLine(x1, y1, x2, y2, tickPaint)
 
             if (h % 3 == 0) {
-                val labelR = radius * 0.74f
+                labelPaint.alpha = 180
+                val labelR = radius * 0.83f
                 val lx = cx + labelR * cos(angle).toFloat()
-                val ly = cy + labelR * sin(angle).toFloat() + labelPaint.textSize * 0.35f
+                val ly = cy + labelR * sin(angle).toFloat() + labelPaint.textSize * 0.3f
+                canvas.drawText(h.toString(), lx, ly, labelPaint)
+            } else if (faceStyle == WidgetStyle.STYLE_2) {
+                labelPaint.alpha = 60
+                val labelR = radius * 0.83f
+                val lx = cx + labelR * cos(angle).toFloat()
+                val ly = cy + labelR * sin(angle).toFloat() + labelPaint.textSize * 0.3f
                 canvas.drawText(h.toString(), lx, ly, labelPaint)
             }
+
         }
 
         // --- кружки-напоминания сегодняшнего дня ---
         val occurrences = ReminderOccurrences.todaysOccurrences(reminders, LocalDate.now())
         val dotRadius = sizePx * 0.02f
-        val dotOrbit = radius * 0.8f
+        val dotOrbit = radius * 0.68f
         for (occ in occurrences) {
             val hourFraction = occ.time.hour + occ.time.minute / 60.0
             val angle = Math.toRadians((hourFraction / 24.0) * 360.0 - 90.0)

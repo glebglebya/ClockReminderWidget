@@ -6,7 +6,7 @@ import android.content.Intent
 
 class WidgetUpdateReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        ClockWidgetProvider.updateAll(context)
+        WidgetCommon.updateAllStyles(context)
     }
 
     companion object {

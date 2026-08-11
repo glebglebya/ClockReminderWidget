@@ -2,7 +2,7 @@ package com.example.clockreminder.data
 
 import android.content.Context
 import com.example.clockreminder.model.Reminder
-import com.example.clockreminder.widget.ClockWidgetProvider
+import com.example.clockreminder.widget.WidgetCommon
 import kotlinx.coroutines.flow.Flow
 
 class ReminderRepository(private val context: Context) {
@@ -13,16 +13,16 @@ class ReminderRepository(private val context: Context) {
 
     suspend fun add(reminder: Reminder) {
         dao.insert(reminder)
-        ClockWidgetProvider.updateAll(context)
+        WidgetCommon.updateAllStyles(context)
     }
 
     suspend fun update(reminder: Reminder) {
         dao.update(reminder)
-        ClockWidgetProvider.updateAll(context)
+        WidgetCommon.updateAllStyles(context)
     }
 
     suspend fun delete(reminder: Reminder) {
         dao.delete(reminder)
-        ClockWidgetProvider.updateAll(context)
+        WidgetCommon.updateAllStyles(context)
     }
 }
