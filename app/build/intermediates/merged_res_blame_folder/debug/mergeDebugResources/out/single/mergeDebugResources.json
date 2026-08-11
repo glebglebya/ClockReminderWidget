@@ -12,6 +12,10 @@
         "source": "C:\\Users\\rgu\\.gradle\\daemon\\9.3.0\\com.example.clockreminder.app-main-58:\\drawable\\widget_background.xml"
     },
     {
+        "merged": "C:\\Users\\rgu\\.gradle\\daemon\\9.3.0\\com.example.clockreminder.app-debug-56:\\xml_horizontal_widget_info.xml.flat",
+        "source": "C:\\Users\\rgu\\.gradle\\daemon\\9.3.0\\com.example.clockreminder.app-main-58:\\xml\\horizontal_widget_info.xml"
+    },
+    {
         "merged": "C:\\Users\\rgu\\.gradle\\daemon\\9.3.0\\com.example.clockreminder.app-debug-56:\\xml_widget_info.xml.flat",
         "source": "C:\\Users\\rgu\\.gradle\\daemon\\9.3.0\\com.example.clockreminder.app-main-58:\\xml\\widget_info.xml"
     },
@@ -22,5 +26,9 @@
     {
         "merged": "C:\\Users\\rgu\\.gradle\\daemon\\9.3.0\\com.example.clockreminder.app-debug-56:\\xml_widget_info_style2.xml.flat",
         "source": "C:\\Users\\rgu\\.gradle\\daemon\\9.3.0\\com.example.clockreminder.app-main-58:\\xml\\widget_info_style2.xml"
+    },
+    {
+        "merged": "com.example.clockreminder.app-debug-56:/layout_widget_clock.xml.flat",
+        "source": "com.example.clockreminder.app-main-58:/layout/widget_clock.xml"
     }
 ]

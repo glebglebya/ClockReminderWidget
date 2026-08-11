@@ -64,7 +64,8 @@ fun ReminderScreen(repo: ReminderRepository) {
     var editing by remember { mutableStateOf<Reminder?>(null) }
 
     val settings = remember { WidgetSettingsRepository(context) }
-    var currentStyle by remember { mutableStateOf(settings.getStyle()) }
+    var circularStyle by remember { mutableStateOf(settings.getCircularStyle()) }
+    var horizontalStyle by remember { mutableStateOf(settings.getHorizontalStyle()) }
 
     Scaffold(
         topBar = { TopAppBar(title = { Text("Часы-напоминания") }) },
@@ -81,47 +82,60 @@ fun ReminderScreen(repo: ReminderRepository) {
         ) {
             // Секция настроек стиля виджета
             Column(Modifier.padding(16.dp)) {
-                Text("Стиль виджета", style = MaterialTheme.typography.titleMedium)
-                Spacer(Modifier.height(8.dp))
+                Text("Стиль круглых часов", style = MaterialTheme.typography.titleSmall)
                 Row(Modifier.fillMaxWidth()) {
                     FilterChip(
-                        selected = currentStyle == ClockFaceRenderer.WidgetStyle.STYLE_1,
+                        selected = circularStyle == ClockFaceRenderer.WidgetStyle.STYLE_1,
                         onClick = {
-                            currentStyle = ClockFaceRenderer.WidgetStyle.STYLE_1
-                            settings.setStyle(currentStyle)
+                            circularStyle = ClockFaceRenderer.WidgetStyle.STYLE_1
+                            settings.setCircularStyle(circularStyle)
                             WidgetCommon.updateAllStyles(context)
                         },
                         label = { Text("24ч") }
                     )
                     Spacer(Modifier.width(4.dp))
                     FilterChip(
-                        selected = currentStyle == ClockFaceRenderer.WidgetStyle.STYLE_2,
+                        selected = circularStyle == ClockFaceRenderer.WidgetStyle.STYLE_2,
                         onClick = {
-                            currentStyle = ClockFaceRenderer.WidgetStyle.STYLE_2
-                            settings.setStyle(currentStyle)
+                            circularStyle = ClockFaceRenderer.WidgetStyle.STYLE_2
+                            settings.setCircularStyle(circularStyle)
                             WidgetCommon.updateAllStyles(context)
                         },
                         label = { Text("24ч+") }
                     )
                     Spacer(Modifier.width(4.dp))
                     FilterChip(
-                        selected = currentStyle == ClockFaceRenderer.WidgetStyle.STYLE_3,
+                        selected = circularStyle == ClockFaceRenderer.WidgetStyle.STYLE_3,
                         onClick = {
-                            currentStyle = ClockFaceRenderer.WidgetStyle.STYLE_3
-                            settings.setStyle(currentStyle)
+                            circularStyle = ClockFaceRenderer.WidgetStyle.STYLE_3
+                            settings.setCircularStyle(circularStyle)
                             WidgetCommon.updateAllStyles(context)
                         },
                         label = { Text("12ч") }
                     )
                     Spacer(Modifier.width(4.dp))
                     FilterChip(
-                        selected = currentStyle == ClockFaceRenderer.WidgetStyle.STYLE_4,
+                        selected = circularStyle == ClockFaceRenderer.WidgetStyle.STYLE_4,
                         onClick = {
-                            currentStyle = ClockFaceRenderer.WidgetStyle.STYLE_4
-                            settings.setStyle(currentStyle)
+                            circularStyle = ClockFaceRenderer.WidgetStyle.STYLE_4
+                            settings.setCircularStyle(circularStyle)
                             WidgetCommon.updateAllStyles(context)
                         },
                         label = { Text("12ч+") }
+                    )
+                }
+
+                Spacer(Modifier.height(8.dp))
+                Text("Стиль горизонтальной шкалы", style = MaterialTheme.typography.titleSmall)
+                Row(Modifier.fillMaxWidth()) {
+                    FilterChip(
+                        selected = horizontalStyle == ClockFaceRenderer.WidgetStyle.STYLE_5,
+                        onClick = {
+                            horizontalStyle = ClockFaceRenderer.WidgetStyle.STYLE_5
+                            settings.setHorizontalStyle(horizontalStyle)
+                            WidgetCommon.updateAllStyles(context)
+                        },
+                        label = { Text("24ч") }
                     )
                 }
             }

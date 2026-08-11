@@ -38,6 +38,19 @@
                 android:resource="@xml/widget_info" />
         </receiver>
 
+        <!-- Горизонтальный виджет (Линейка) -->
+        <receiver
+            android:name=".widget.HorizontalWidgetProvider"
+            android:exported="true"
+            android:label="@string/horizontal_widget_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/horizontal_widget_info" />
+        </receiver>
+
         <!-- Ежеминутное обновление положения стрелок, запускается AlarmManager-ом -->
         <receiver
             android:name=".widget.WidgetUpdateReceiver"

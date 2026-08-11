@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Часы-напоминания</string>
-    <string name="widget_label">Часы с напоминаниями</string>
-    <string name="widget_description">Круглые часы с настраиваемым стилем циферблата</string>
+    <string name="widget_label">Круглые часы</string>
+    <string name="widget_description">Настраиваемые круглые часы с напоминаниями</string>
+    <string name="horizontal_widget_label">Линейка напоминаний</string>
+    <string name="horizontal_widget_description">Горизонтальная шкала с напоминаниями</string>
 </resources>

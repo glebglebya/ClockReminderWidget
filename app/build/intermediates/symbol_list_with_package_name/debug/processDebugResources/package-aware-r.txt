@@ -931,6 +931,8 @@ string close_sheet
 string default_error_message
 string default_popup_window_title
 string dropdown_menu
+string horizontal_widget_description
+string horizontal_widget_label
 string in_progress
 string indeterminate
 string m3c_bottom_sheet_collapse_description
@@ -1406,4 +1408,5 @@ styleable Toolbar android_gravity android_minHeight buttonGravity collapseConten
 styleable View android_theme android_focusable paddingEnd paddingStart theme
 styleable ViewBackgroundHelper android_background backgroundTint backgroundTintMode
 styleable ViewStubCompat android_id android_layout android_inflatedId
+xml horizontal_widget_info
 xml widget_info

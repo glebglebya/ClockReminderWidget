@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.RectF
 import com.example.clockreminder.model.Reminder
 import java.time.LocalDate
 import java.time.LocalTime
@@ -11,19 +12,24 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * Рисует круглый циферблат (24ч или 12ч) с часовой и минутной стрелками
- * и цветными кружками-напоминаниями.
+ * Рисует циферблат (круглый или горизонтальный) с напоминаниями.
  */
 object ClockFaceRenderer {
 
     enum class WidgetStyle {
-        STYLE_1, // 24ч, подписи каждые 3 часа
-        STYLE_2, // 24ч, все подписи (промежуточные бледнее)
-        STYLE_3, // 12ч, подписи каждые 3 часа
-        STYLE_4  // 12ч, все подписи (промежуточные бледнее)
+        STYLE_1, // 24ч круглый, подписи каждые 3 часа
+        STYLE_2, // 24ч круглый, все подписи (промежуточные бледнее)
+        STYLE_3, // 12ч круглый, подписи каждые 3 часа
+        STYLE_4, // 12ч круглый, все подписи (промежуточные бледнее)
+        STYLE_5  // Горизонтальный 24ч, подписи каждые 3 часа
     }
 
-    fun render(sizePx: Int, reminders: List<Reminder>, faceStyle: WidgetStyle = WidgetStyle.STYLE_1): Bitmap {
+    fun render(widthPx: Int, heightPx: Int, reminders: List<Reminder>, faceStyle: WidgetStyle = WidgetStyle.STYLE_1): Bitmap {
+        if (faceStyle == WidgetStyle.STYLE_5) {
+            return renderHorizontal(widthPx, heightPx, reminders, faceStyle)
+        }
+
+        val sizePx = minOf(widthPx, heightPx)
         val bmp = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bmp)
         val cx = sizePx / 2f
@@ -141,6 +147,94 @@ object ClockFaceRenderer {
 
         val centerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.WHITE }
         canvas.drawCircle(cx, cy, sizePx * 0.02f, centerPaint)
+
+        return bmp
+    }
+
+    private fun renderHorizontal(width: Int, height: Int, reminders: List<Reminder>, faceStyle: WidgetStyle): Bitmap {
+        val bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bmp)
+        
+        val cornerRadius = height * 0.3f // Больше скругление для Material 3
+        val padding = width * 0.05f // Меньше отступы по краям
+        val scaleWidth = width - 2 * padding
+        
+        // Позиции по вертикали (снизу вверх)
+        val tickY = height * 0.85f
+        val tickLen = height * 0.12f
+        val labelY = height * 0.60f
+        val dotY = height * 0.28f
+        
+        // Фон
+        val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#1C1C1E")
+            style = Paint.Style.FILL
+        }
+        canvas.drawRoundRect(0f, 0f, width.toFloat(), height.toFloat(), cornerRadius, cornerRadius, bgPaint)
+
+        // Обводка
+        val ringPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#3A3A3C")
+            style = Paint.Style.STROKE
+            strokeWidth = height * 0.02f
+        }
+        canvas.drawRoundRect(0f, 0f, width.toFloat(), height.toFloat(), cornerRadius, cornerRadius, ringPaint)
+
+        val tickPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#444446")
+            strokeWidth = height * 0.015f
+            strokeCap = Paint.Cap.ROUND
+        }
+        val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.WHITE
+            textSize = height * 0.22f // Чуть меньше шрифт
+            textAlign = Paint.Align.CENTER
+        }
+
+        // Шкала 24 часа
+        for (h in 0..24) {
+            val x = padding + (h / 24f) * scaleWidth
+            canvas.drawLine(x, tickY, x, tickY - tickLen, tickPaint)
+
+            if (h % 3 == 0) {
+                labelPaint.alpha = 220
+                canvas.drawText(h.toString(), x, labelY, labelPaint)
+            }
+        }
+
+        // Напоминания
+        val occurrences = ReminderOccurrences.todaysOccurrences(reminders, LocalDate.now())
+        val dotRadius = height * 0.07f
+        for (occ in occurrences) {
+            val hourFraction = occ.time.hour + occ.time.minute / 60.0
+            val x = padding + (hourFraction.toFloat() / 24f) * scaleWidth
+            val dotFill = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = occ.colorArgb
+                style = Paint.Style.FILL
+                setShadowLayer(height * 0.05f, 0f, 0f, occ.colorArgb)
+            }
+            canvas.drawCircle(x, dotY, dotRadius, dotFill)
+        }
+
+        // Индикатор (Капсула на всю высоту шкалы)
+        val now = LocalTime.now()
+        val nowFraction = now.hour + now.minute / 60.0 + now.second / 3600.0
+        val indicatorX = padding + (nowFraction.toFloat() / 24f) * scaleWidth
+        
+        val indicatorPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.WHITE
+            style = Paint.Style.FILL
+        }
+        val indWidth = height * 0.04f
+        canvas.drawRoundRect(
+            indicatorX - indWidth / 2,
+            height * 0.15f,
+            indicatorX + indWidth / 2,
+            height * 0.85f,
+            indWidth / 2,
+            indWidth / 2,
+            indicatorPaint
+        )
 
         return bmp
     }

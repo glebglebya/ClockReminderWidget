@@ -30,7 +30,7 @@
 19-->[androidx.core:core:1.13.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\ff9513bd438defe28589edbf84d1728f\workspace\transformed\core-1.13.1\AndroidManifest.xml:26:22-94
 20
 21    <application
-21-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:8:5-59:19
+21-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:8:5-72:19
 22        android:name="com.example.clockreminder.App"
 22-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:9:9-28
 23        android:allowBackup="true"
@@ -96,117 +96,141 @@
 56-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:38:17-52
 57        </receiver>
 58
-59        <!-- Ежеминутное обновление положения стрелок, запускается AlarmManager-ом -->
+59        <!-- Горизонтальный виджет (Линейка) -->
 60        <receiver
-60-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:42:9-48:20
-61            android:name="com.example.clockreminder.widget.WidgetUpdateReceiver"
-61-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:43:13-56
-62            android:exported="false" >
-62-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:44:13-37
-63            <intent-filter>
-63-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:45:13-47:29
-64                <action android:name="com.example.clockreminder.ACTION_TICK" />
-64-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:46:17-80
-64-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:46:25-77
-65            </intent-filter>
-66        </receiver>
+60-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:42:9-52:20
+61            android:name="com.example.clockreminder.widget.HorizontalWidgetProvider"
+61-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:43:13-60
+62            android:exported="true"
+62-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:44:13-36
+63            android:label="@string/horizontal_widget_label" >
+63-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:45:13-60
+64            <intent-filter>
+64-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:33:13-35:29
+65                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+65-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:34:17-84
+65-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:34:25-81
+66            </intent-filter>
 67
-68        <!-- Восстановление будильника обновления после перезагрузки устройства -->
-69        <receiver
-69-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:51:9-57:20
-70            android:name="com.example.clockreminder.widget.BootReceiver"
-70-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:52:13-48
-71            android:exported="true" >
-71-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:53:13-36
-72            <intent-filter>
-72-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:54:13-56:29
-73                <action android:name="android.intent.action.BOOT_COMPLETED" />
-73-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:55:17-79
-73-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:55:25-76
-74            </intent-filter>
-75        </receiver>
-76
-77        <activity
-77-->[androidx.compose.ui:ui-tooling-android:1.6.8] C:\Users\rgu\.gradle\caches\9.3.0\transforms\53902209ddd0f4b4685d7d170f9744e0\workspace\transformed\ui-tooling-release\AndroidManifest.xml:23:9-25:39
-78            android:name="androidx.compose.ui.tooling.PreviewActivity"
-78-->[androidx.compose.ui:ui-tooling-android:1.6.8] C:\Users\rgu\.gradle\caches\9.3.0\transforms\53902209ddd0f4b4685d7d170f9744e0\workspace\transformed\ui-tooling-release\AndroidManifest.xml:24:13-71
-79            android:exported="true" />
-79-->[androidx.compose.ui:ui-tooling-android:1.6.8] C:\Users\rgu\.gradle\caches\9.3.0\transforms\53902209ddd0f4b4685d7d170f9744e0\workspace\transformed\ui-tooling-release\AndroidManifest.xml:25:13-36
-80
-81        <provider
-81-->[androidx.lifecycle:lifecycle-process:2.8.2] C:\Users\rgu\.gradle\caches\9.3.0\transforms\fe3b7ec3375d5661f8cbc1c0ab4112e6\workspace\transformed\lifecycle-process-2.8.2\AndroidManifest.xml:24:9-32:20
-82            android:name="androidx.startup.InitializationProvider"
-82-->[androidx.lifecycle:lifecycle-process:2.8.2] C:\Users\rgu\.gradle\caches\9.3.0\transforms\fe3b7ec3375d5661f8cbc1c0ab4112e6\workspace\transformed\lifecycle-process-2.8.2\AndroidManifest.xml:25:13-67
-83            android:authorities="com.example.clockreminder.androidx-startup"
-83-->[androidx.lifecycle:lifecycle-process:2.8.2] C:\Users\rgu\.gradle\caches\9.3.0\transforms\fe3b7ec3375d5661f8cbc1c0ab4112e6\workspace\transformed\lifecycle-process-2.8.2\AndroidManifest.xml:26:13-68
-84            android:exported="false" >
-84-->[androidx.lifecycle:lifecycle-process:2.8.2] C:\Users\rgu\.gradle\caches\9.3.0\transforms\fe3b7ec3375d5661f8cbc1c0ab4112e6\workspace\transformed\lifecycle-process-2.8.2\AndroidManifest.xml:27:13-37
-85            <meta-data
-85-->[androidx.lifecycle:lifecycle-process:2.8.2] C:\Users\rgu\.gradle\caches\9.3.0\transforms\fe3b7ec3375d5661f8cbc1c0ab4112e6\workspace\transformed\lifecycle-process-2.8.2\AndroidManifest.xml:29:13-31:52
-86                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
-86-->[androidx.lifecycle:lifecycle-process:2.8.2] C:\Users\rgu\.gradle\caches\9.3.0\transforms\fe3b7ec3375d5661f8cbc1c0ab4112e6\workspace\transformed\lifecycle-process-2.8.2\AndroidManifest.xml:30:17-78
-87                android:value="androidx.startup" />
-87-->[androidx.lifecycle:lifecycle-process:2.8.2] C:\Users\rgu\.gradle\caches\9.3.0\transforms\fe3b7ec3375d5661f8cbc1c0ab4112e6\workspace\transformed\lifecycle-process-2.8.2\AndroidManifest.xml:31:17-49
-88            <meta-data
-88-->[androidx.emoji2:emoji2:1.3.0] C:\Users\rgu\.gradle\caches\9.3.0\transforms\abcf0367d2cf87a4a718c2482b3ba0d8\workspace\transformed\emoji2-1.3.0\AndroidManifest.xml:29:13-31:52
-89                android:name="androidx.emoji2.text.EmojiCompatInitializer"
-89-->[androidx.emoji2:emoji2:1.3.0] C:\Users\rgu\.gradle\caches\9.3.0\transforms\abcf0367d2cf87a4a718c2482b3ba0d8\workspace\transformed\emoji2-1.3.0\AndroidManifest.xml:30:17-75
-90                android:value="androidx.startup" />
-90-->[androidx.emoji2:emoji2:1.3.0] C:\Users\rgu\.gradle\caches\9.3.0\transforms\abcf0367d2cf87a4a718c2482b3ba0d8\workspace\transformed\emoji2-1.3.0\AndroidManifest.xml:31:17-49
-91            <meta-data
-91-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:29:13-31:52
-92                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
-92-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:30:17-85
-93                android:value="androidx.startup" />
-93-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:31:17-49
-94        </provider>
-95
-96        <service
-96-->[androidx.room:room-runtime:2.6.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\a783f5a55481f6ededfa6071da1ecbd7\workspace\transformed\room-runtime-2.6.1\AndroidManifest.xml:24:9-28:63
-97            android:name="androidx.room.MultiInstanceInvalidationService"
-97-->[androidx.room:room-runtime:2.6.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\a783f5a55481f6ededfa6071da1ecbd7\workspace\transformed\room-runtime-2.6.1\AndroidManifest.xml:25:13-74
-98            android:directBootAware="true"
-98-->[androidx.room:room-runtime:2.6.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\a783f5a55481f6ededfa6071da1ecbd7\workspace\transformed\room-runtime-2.6.1\AndroidManifest.xml:26:13-43
-99            android:exported="false" />
-99-->[androidx.room:room-runtime:2.6.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\a783f5a55481f6ededfa6071da1ecbd7\workspace\transformed\room-runtime-2.6.1\AndroidManifest.xml:27:13-37
-100
-101        <receiver
-101-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:34:9-52:20
-102            android:name="androidx.profileinstaller.ProfileInstallReceiver"
-102-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:35:13-76
-103            android:directBootAware="false"
-103-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:36:13-44
-104            android:enabled="true"
-104-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:37:13-35
-105            android:exported="true"
-105-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:38:13-36
-106            android:permission="android.permission.DUMP" >
-106-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:39:13-57
-107            <intent-filter>
-107-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:40:13-42:29
-108                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
-108-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:17-91
-108-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:25-88
-109            </intent-filter>
-110            <intent-filter>
-110-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:43:13-45:29
-111                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
-111-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:17-85
-111-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:25-82
-112            </intent-filter>
-113            <intent-filter>
-113-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:46:13-48:29
-114                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
-114-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:17-88
-114-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:25-85
-115            </intent-filter>
-116            <intent-filter>
-116-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:49:13-51:29
-117                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
-117-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:17-95
-117-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:25-92
-118            </intent-filter>
-119        </receiver>
-120    </application>
-121
-122</manifest>
+68            <meta-data
+68-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:36:13-38:55
+69                android:name="android.appwidget.provider"
+69-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:37:17-58
+70                android:resource="@xml/horizontal_widget_info" />
+70-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:38:17-52
+71        </receiver>
+72
+73        <!-- Ежеминутное обновление положения стрелок, запускается AlarmManager-ом -->
+74        <receiver
+74-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:55:9-61:20
+75            android:name="com.example.clockreminder.widget.WidgetUpdateReceiver"
+75-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:56:13-56
+76            android:exported="false" >
+76-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:57:13-37
+77            <intent-filter>
+77-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:58:13-60:29
+78                <action android:name="com.example.clockreminder.ACTION_TICK" />
+78-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:59:17-80
+78-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:59:25-77
+79            </intent-filter>
+80        </receiver>
+81
+82        <!-- Восстановление будильника обновления после перезагрузки устройства -->
+83        <receiver
+83-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:64:9-70:20
+84            android:name="com.example.clockreminder.widget.BootReceiver"
+84-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:65:13-48
+85            android:exported="true" >
+85-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:66:13-36
+86            <intent-filter>
+86-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:67:13-69:29
+87                <action android:name="android.intent.action.BOOT_COMPLETED" />
+87-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:68:17-79
+87-->D:\Users\rgu\AndroidProjects\ClockReminderWidget\app\src\main\AndroidManifest.xml:68:25-76
+88            </intent-filter>
+89        </receiver>
+90
+91        <activity
+91-->[androidx.compose.ui:ui-tooling-android:1.6.8] C:\Users\rgu\.gradle\caches\9.3.0\transforms\53902209ddd0f4b4685d7d170f9744e0\workspace\transformed\ui-tooling-release\AndroidManifest.xml:23:9-25:39
+92            android:name="androidx.compose.ui.tooling.PreviewActivity"
+92-->[androidx.compose.ui:ui-tooling-android:1.6.8] C:\Users\rgu\.gradle\caches\9.3.0\transforms\53902209ddd0f4b4685d7d170f9744e0\workspace\transformed\ui-tooling-release\AndroidManifest.xml:24:13-71
+93            android:exported="true" />
+93-->[androidx.compose.ui:ui-tooling-android:1.6.8] C:\Users\rgu\.gradle\caches\9.3.0\transforms\53902209ddd0f4b4685d7d170f9744e0\workspace\transformed\ui-tooling-release\AndroidManifest.xml:25:13-36
+94
+95        <provider
+95-->[androidx.lifecycle:lifecycle-process:2.8.2] C:\Users\rgu\.gradle\caches\9.3.0\transforms\fe3b7ec3375d5661f8cbc1c0ab4112e6\workspace\transformed\lifecycle-process-2.8.2\AndroidManifest.xml:24:9-32:20
+96            android:name="androidx.startup.InitializationProvider"
+96-->[androidx.lifecycle:lifecycle-process:2.8.2] C:\Users\rgu\.gradle\caches\9.3.0\transforms\fe3b7ec3375d5661f8cbc1c0ab4112e6\workspace\transformed\lifecycle-process-2.8.2\AndroidManifest.xml:25:13-67
+97            android:authorities="com.example.clockreminder.androidx-startup"
+97-->[androidx.lifecycle:lifecycle-process:2.8.2] C:\Users\rgu\.gradle\caches\9.3.0\transforms\fe3b7ec3375d5661f8cbc1c0ab4112e6\workspace\transformed\lifecycle-process-2.8.2\AndroidManifest.xml:26:13-68
+98            android:exported="false" >
+98-->[androidx.lifecycle:lifecycle-process:2.8.2] C:\Users\rgu\.gradle\caches\9.3.0\transforms\fe3b7ec3375d5661f8cbc1c0ab4112e6\workspace\transformed\lifecycle-process-2.8.2\AndroidManifest.xml:27:13-37
+99            <meta-data
+99-->[androidx.lifecycle:lifecycle-process:2.8.2] C:\Users\rgu\.gradle\caches\9.3.0\transforms\fe3b7ec3375d5661f8cbc1c0ab4112e6\workspace\transformed\lifecycle-process-2.8.2\AndroidManifest.xml:29:13-31:52
+100                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+100-->[androidx.lifecycle:lifecycle-process:2.8.2] C:\Users\rgu\.gradle\caches\9.3.0\transforms\fe3b7ec3375d5661f8cbc1c0ab4112e6\workspace\transformed\lifecycle-process-2.8.2\AndroidManifest.xml:30:17-78
+101                android:value="androidx.startup" />
+101-->[androidx.lifecycle:lifecycle-process:2.8.2] C:\Users\rgu\.gradle\caches\9.3.0\transforms\fe3b7ec3375d5661f8cbc1c0ab4112e6\workspace\transformed\lifecycle-process-2.8.2\AndroidManifest.xml:31:17-49
+102            <meta-data
+102-->[androidx.emoji2:emoji2:1.3.0] C:\Users\rgu\.gradle\caches\9.3.0\transforms\abcf0367d2cf87a4a718c2482b3ba0d8\workspace\transformed\emoji2-1.3.0\AndroidManifest.xml:29:13-31:52
+103                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+103-->[androidx.emoji2:emoji2:1.3.0] C:\Users\rgu\.gradle\caches\9.3.0\transforms\abcf0367d2cf87a4a718c2482b3ba0d8\workspace\transformed\emoji2-1.3.0\AndroidManifest.xml:30:17-75
+104                android:value="androidx.startup" />
+104-->[androidx.emoji2:emoji2:1.3.0] C:\Users\rgu\.gradle\caches\9.3.0\transforms\abcf0367d2cf87a4a718c2482b3ba0d8\workspace\transformed\emoji2-1.3.0\AndroidManifest.xml:31:17-49
+105            <meta-data
+105-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:29:13-31:52
+106                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+106-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:30:17-85
+107                android:value="androidx.startup" />
+107-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:31:17-49
+108        </provider>
+109
+110        <service
+110-->[androidx.room:room-runtime:2.6.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\a783f5a55481f6ededfa6071da1ecbd7\workspace\transformed\room-runtime-2.6.1\AndroidManifest.xml:24:9-28:63
+111            android:name="androidx.room.MultiInstanceInvalidationService"
+111-->[androidx.room:room-runtime:2.6.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\a783f5a55481f6ededfa6071da1ecbd7\workspace\transformed\room-runtime-2.6.1\AndroidManifest.xml:25:13-74
+112            android:directBootAware="true"
+112-->[androidx.room:room-runtime:2.6.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\a783f5a55481f6ededfa6071da1ecbd7\workspace\transformed\room-runtime-2.6.1\AndroidManifest.xml:26:13-43
+113            android:exported="false" />
+113-->[androidx.room:room-runtime:2.6.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\a783f5a55481f6ededfa6071da1ecbd7\workspace\transformed\room-runtime-2.6.1\AndroidManifest.xml:27:13-37
+114
+115        <receiver
+115-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:34:9-52:20
+116            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+116-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:35:13-76
+117            android:directBootAware="false"
+117-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:36:13-44
+118            android:enabled="true"
+118-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:37:13-35
+119            android:exported="true"
+119-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:38:13-36
+120            android:permission="android.permission.DUMP" >
+120-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:39:13-57
+121            <intent-filter>
+121-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:40:13-42:29
+122                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+122-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:17-91
+122-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:25-88
+123            </intent-filter>
+124            <intent-filter>
+124-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:43:13-45:29
+125                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+125-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:17-85
+125-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:25-82
+126            </intent-filter>
+127            <intent-filter>
+127-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:46:13-48:29
+128                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+128-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:17-88
+128-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:25-85
+129            </intent-filter>
+130            <intent-filter>
+130-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:49:13-51:29
+131                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+131-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:17-95
+131-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rgu\.gradle\caches\9.3.0\transforms\822f4535af4b1b6ae64cd08106decaec\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:25-92
+132            </intent-filter>
+133        </receiver>
+134    </application>
+135
+136</manifest>

@@ -9,7 +9,10 @@ id widget_clock_image
 layout widget_clock
 mipmap ic_launcher
 string app_name
+string horizontal_widget_description
+string horizontal_widget_label
 string widget_description
 string widget_label
 style Theme.ClockReminder
+xml horizontal_widget_info
 xml widget_info
