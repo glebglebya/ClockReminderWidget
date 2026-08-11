@@ -21,7 +21,7 @@ abstract class AppDatabase : RoomDatabase() {
                 INSTANCE ?: Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "clock_reminder.db"
+                    "clock_reminder.db",
                 )
                     .fallbackToDestructiveMigration()
                     .build().also { INSTANCE = it }

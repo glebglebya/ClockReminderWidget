@@ -50,7 +50,7 @@ import java.time.format.DateTimeFormatter
 
 private val PALETTE = listOf(
     Color(0xFFFF3B30), Color(0xFF34C759), Color(0xFF007AFF),
-    Color(0xFFFF9500), Color(0xFFAF52DE), Color(0xFFFFCC00), Color(0xFF5AC8FA)
+    Color(0xFFFF9500), Color(0xFFAF52DE), Color(0xFFFFCC00), Color(0xFF5AC8FA),
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -272,33 +272,35 @@ fun AddEditReminderDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = {
-                val startMillis = LocalDateTime.of(startDate, startTime)
-                    .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-                
-                val endMillis = if (repeatType == RepeatType.REPEATING && hasEndDate) {
-                    LocalDateTime.of(endDate, endTime)
+            TextButton(
+                onClick = {
+                    val startMillis = LocalDateTime.of(startDate, startTime)
                         .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-                } else null
 
-                val repeatCount = if (repeatType == RepeatType.REPEATING && hasRepeatCount) {
-                    repeatCountText.toIntOrNull()?.coerceAtLeast(1)
-                } else null
+                    val endMillis = if (repeatType == RepeatType.REPEATING && hasEndDate) {
+                        LocalDateTime.of(endDate, endTime)
+                            .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                    } else null
 
-                val reminder = Reminder(
-                    id = existing?.id ?: 0,
-                    label = label,
-                    colorArgb = color.toArgb(),
-                    repeatType = repeatType,
-                    startEpochMillis = startMillis,
-                    intervalValue = intervalValueText.toIntOrNull()?.coerceAtLeast(1) ?: 1,
-                    intervalUnit = intervalUnit,
-                    endEpochMillis = endMillis,
-                    repeatCount = repeatCount,
-                    enabled = existing?.enabled ?: true
-                )
-                onSave(reminder)
-            }) { Text("Сохранить") }
+                    val repeatCount = if (repeatType == RepeatType.REPEATING && hasRepeatCount) {
+                        repeatCountText.toIntOrNull()?.coerceAtLeast(1)
+                    } else null
+
+                    val reminder = Reminder(
+                        id = existing?.id ?: 0,
+                        label = label,
+                        colorArgb = color.toArgb(),
+                        repeatType = repeatType,
+                        startEpochMillis = startMillis,
+                        intervalValue = intervalValueText.toIntOrNull()?.coerceAtLeast(1) ?: 1,
+                        intervalUnit = intervalUnit,
+                        endEpochMillis = endMillis,
+                        repeatCount = repeatCount,
+                        enabled = existing?.enabled ?: true,
+                    )
+                    onSave(reminder)
+                },
+            ) { Text("Сохранить") }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text("Отмена") }

@@ -49,7 +49,6 @@ import com.example.clockreminder.widget.ClockFaceRenderer
 import com.example.clockreminder.widget.WidgetCommon
 import kotlinx.coroutines.launch
 import java.time.Instant
-import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -60,7 +59,7 @@ fun ReminderScreen(repo: ReminderRepository) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val reminders by repo.observeAll().collectAsStateWithLifecycle(initialValue = emptyList())
-    var showDialog by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(value = false) }
     var editing by remember { mutableStateOf<Reminder?>(null) }
 
     val settings = remember { WidgetSettingsRepository(context) }
@@ -156,7 +155,7 @@ fun ReminderScreen(repo: ReminderRepository) {
                         ReminderRow(
                             reminder = reminder,
                             onClick = { editing = reminder; showDialog = true },
-                            onDelete = { scope.launch { repo.delete(reminder) } }
+                            onDelete = { scope.launch { repo.delete(reminder) } },
                         )
                     }
                 }
@@ -224,10 +223,9 @@ private fun describeSchedule(r: Reminder): String {
             if (r.endEpochMillis != null) {
                 val end = Instant.ofEpochMilli(r.endEpochMillis)
                     .atZone(ZoneId.systemDefault())
-                base + " по " + end.format(DateTimeFormatter.ofPattern("dd.MM HH:mm"))
-            } else {
-                base
+                base += " по " + end.format(DateTimeFormatter.ofPattern("dd.MM HH:mm"))
             }
+            base
         }
     }
 }

@@ -25,5 +25,5 @@ data class Reminder(
     val endEpochMillis: Long? = null,
     val repeatCount: Int? = null,
 
-    val enabled: Boolean = true
+    val enabled: Boolean = true,
 )

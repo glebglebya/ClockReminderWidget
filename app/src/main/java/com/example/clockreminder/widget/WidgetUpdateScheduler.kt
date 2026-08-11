@@ -31,7 +31,7 @@ object WidgetUpdateScheduler {
             AlarmManager.ELAPSED_REALTIME,
             SystemClock.elapsedRealtime(),
             60_000L,
-            pendingIntent(context)
+            pendingIntent(context),
         )
     }
 
@@ -44,10 +44,5 @@ object WidgetUpdateScheduler {
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             alarmManager.cancel(pendingIntent(context))
         }
-    }
-
-    fun cancel(context: Context) {
-        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarmManager.cancel(pendingIntent(context))
     }
 }

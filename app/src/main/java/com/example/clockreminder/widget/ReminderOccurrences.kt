@@ -22,7 +22,7 @@ object ReminderOccurrences {
     fun todaysOccurrences(
         reminders: List<Reminder>,
         today: LocalDate = LocalDate.now(),
-        zone: ZoneId = ZoneId.systemDefault()
+        zone: ZoneId = ZoneId.systemDefault(),
     ): List<Occurrence> {
         val result = mutableListOf<Occurrence>()
         val dayStartInstant = today.atStartOfDay(zone).toInstant()
@@ -36,7 +36,7 @@ object ReminderOccurrences {
             
             when (r.repeatType) {
                 RepeatType.ONE_TIME -> {
-                    if (r.startEpochMillis in dayStart until dayEnd) {
+                    if (r.startEpochMillis in (dayStart until dayEnd)) {
                         val ldt = LocalDateTime.ofInstant(Instant.ofEpochMilli(r.startEpochMillis), zone)
                         result.add(Occurrence(ldt.toLocalTime(), r.colorArgb, r.label))
                     }

@@ -17,7 +17,7 @@ object WidgetCommon {
         context: Context,
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray,
-        layoutId: Int = R.layout.widget_clock
+        layoutId: Int = R.layout.widget_clock,
     ) {
         if (appWidgetIds.isEmpty()) return
         
@@ -35,16 +35,27 @@ object WidgetCommon {
             
             for (id in appWidgetIds) {
                 val options = appWidgetManager.getAppWidgetOptions(id)
-                val minWidthDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
-                val minHeightDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT)
+                var minWidthDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
+                var minHeightDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT)
                 
-                // Расчет пикселей
+                // Если значения 0 (бывает при первой установке), берем из манифеста
+                if (minWidthDp == 0 || minHeightDp == 0) {
+                    val info = appWidgetManager.getAppWidgetInfo(id)
+                    minWidthDp = info?.minWidth ?: 200
+                    minHeightDp = info?.minHeight ?: 100
+                }
+
                 val density = context.resources.displayMetrics.density
-                val wPx = (minWidthDp * density).toInt().coerceAtLeast(300)
+                val wPx = (minWidthDp * density).toInt().coerceAtLeast(512)
                 
-                // Ограничиваем высоту, чтобы при 3х1 или 5х1 она оставалась примерно как у 1й ячейки
-                // Обычная высота ячейки ~70-100dp. Возьмем 80dp как константу для горизонтального стиля.
-                val hPx = if (isHorizontal) (80 * density).toInt() else (minHeightDp * density).toInt().coerceAtLeast(100)
+                // Для горизонтального виджета разрешаем высоту от 70 до 180 dp
+                // Для круглого - используем всю доступную высоту (он сам выберет minOf(w, h))
+                val hPx = if (isHorizontal) {
+                    val targetH = minHeightDp.coerceIn(70, 180)
+                    (targetH * density).toInt()
+                } else {
+                    (minHeightDp * density).toInt().coerceAtLeast(512)
+                }
                 
                 val bmp = ClockFaceRenderer.render(wPx, hPx, reminders, style)
                 

@@ -9,7 +9,7 @@ class HorizontalWidgetProvider : AppWidgetProvider() {
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
-        appWidgetIds: IntArray
+        appWidgetIds: IntArray,
     ) {
         WidgetCommon.updateWidgets(context, appWidgetManager, appWidgetIds)
     }
