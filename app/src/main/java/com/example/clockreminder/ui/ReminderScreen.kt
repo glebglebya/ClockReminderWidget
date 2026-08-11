@@ -143,7 +143,10 @@ private fun describeSchedule(r: Reminder): String {
                 IntervalUnit.HOURS -> "ч"
                 IntervalUnit.DAYS -> "дн"
             }
-            val base = "Каждые ${r.intervalValue} $unitStr, с $startStr"
+            var base = "Каждые ${r.intervalValue} $unitStr, с $startStr"
+            if (r.repeatCount != null) {
+                base += ", ${r.repeatCount} раз"
+            }
             if (r.endEpochMillis != null) {
                 val end = Instant.ofEpochMilli(r.endEpochMillis)
                     .atZone(ZoneId.systemDefault())

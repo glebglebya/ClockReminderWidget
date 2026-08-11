@@ -23,6 +23,7 @@ data class Reminder(
     val intervalValue: Int = 0,
     val intervalUnit: IntervalUnit = IntervalUnit.DAYS,
     val endEpochMillis: Long? = null,
+    val repeatCount: Int? = null,
 
     val enabled: Boolean = true
 )

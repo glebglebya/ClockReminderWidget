@@ -47,7 +47,8 @@ object ReminderOccurrences {
                     if (r.endEpochMillis != null && r.endEpochMillis < dayStart) continue
 
                     var current = Instant.ofEpochMilli(r.startEpochMillis).atZone(zone)
-                    
+                    var occurrenceIndex = 0L
+
                     // Пропускаем интервалы до начала сегодняшнего дня
                     if (current.toInstant().isBefore(dayStartInstant)) {
                         when (r.intervalUnit) {
@@ -55,25 +56,14 @@ object ReminderOccurrences {
                                 val unitMillis = if (r.intervalUnit == IntervalUnit.MINUTES) 60_000L else 3_600_000L
                                 val intervalMillis = r.intervalValue * unitMillis
                                 val diff = dayStart - r.startEpochMillis
-                                val skipCount = diff / intervalMillis
-                                current = current.plus(skipCount * intervalMillis, ChronoUnit.MILLIS)
-                                while (current.toInstant().isBefore(dayStartInstant)) {
-                                    current = if (r.intervalUnit == IntervalUnit.MINUTES) {
-                                        current.plusMinutes(r.intervalValue.toLong())
-                                    } else {
-                                        current.plusHours(r.intervalValue.toLong())
-                                    }
-                                }
+                                occurrenceIndex = (diff + intervalMillis - 1) / intervalMillis
+                                current = current.plus(occurrenceIndex * intervalMillis, ChronoUnit.MILLIS)
                             }
                             IntervalUnit.DAYS -> {
-                                // Для дней используем ChronoUnit.DAYS.between для более точного пропуска
                                 val startLocalDate = current.toLocalDate()
                                 val daysBetween = ChronoUnit.DAYS.between(startLocalDate, today)
-                                val skipCount = daysBetween / r.intervalValue
-                                current = current.plusDays(skipCount * r.intervalValue)
-                                while (current.toInstant().isBefore(dayStartInstant)) {
-                                    current = current.plusDays(r.intervalValue.toLong())
-                                }
+                                occurrenceIndex = (daysBetween + r.intervalValue - 1) / r.intervalValue
+                                current = current.plusDays(occurrenceIndex * r.intervalValue)
                             }
                         }
                     }
@@ -81,7 +71,12 @@ object ReminderOccurrences {
                     // Собираем все вхождения в течение сегодняшнего дня
                     while (current.toInstant().isBefore(dayEndInstant)) {
                         val t = current.toInstant().toEpochMilli()
-                        if (t >= dayStart && (r.endEpochMillis == null || t <= r.endEpochMillis)) {
+                        
+                        // Проверяем лимиты: дата окончания и количество повторений
+                        if (r.endEpochMillis != null && t > r.endEpochMillis) break
+                        if (r.repeatCount != null && occurrenceIndex >= r.repeatCount) break
+
+                        if (t >= dayStart) {
                             result.add(Occurrence(current.toLocalTime(), r.colorArgb, r.label))
                         }
                         
@@ -90,8 +85,7 @@ object ReminderOccurrences {
                             IntervalUnit.HOURS -> current.plusHours(r.intervalValue.toLong())
                             IntervalUnit.DAYS -> current.plusDays(r.intervalValue.toLong())
                         }
-                        
-                        if (r.endEpochMillis != null && current.toInstant().toEpochMilli() > r.endEpochMillis) break
+                        occurrenceIndex++
                     }
                 }
             }

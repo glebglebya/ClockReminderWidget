@@ -98,6 +98,9 @@ fun AddEditReminderDialog(
         )
     }
 
+    var hasRepeatCount by remember { mutableStateOf(existing?.repeatCount != null) }
+    var repeatCountText by remember { mutableStateOf((existing?.repeatCount ?: 10).toString()) }
+
     fun pickDate(current: LocalDate, onPicked: (LocalDate) -> Unit) {
         DatePickerDialog(
             context,
@@ -228,6 +231,21 @@ fun AddEditReminderDialog(
 
                     Spacer(Modifier.height(16.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("Ограничить количество повторений", modifier = Modifier.weight(1f))
+                        Switch(checked = hasRepeatCount, onCheckedChange = { hasRepeatCount = it })
+                    }
+                    if (hasRepeatCount) {
+                        OutlinedTextField(
+                            value = repeatCountText,
+                            onValueChange = { repeatCountText = it.filter { ch -> ch.isDigit() } },
+                            label = { Text("Количество раз") },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true
+                        )
+                    }
+
+                    Spacer(Modifier.height(16.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("Ограничить дату окончания", modifier = Modifier.weight(1f))
                         Switch(checked = hasEndDate, onCheckedChange = { hasEndDate = it })
                     }
@@ -263,6 +281,10 @@ fun AddEditReminderDialog(
                         .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
                 } else null
 
+                val repeatCount = if (repeatType == RepeatType.REPEATING && hasRepeatCount) {
+                    repeatCountText.toIntOrNull()?.coerceAtLeast(1)
+                } else null
+
                 val reminder = Reminder(
                     id = existing?.id ?: 0,
                     label = label,
@@ -272,6 +294,7 @@ fun AddEditReminderDialog(
                     intervalValue = intervalValueText.toIntOrNull()?.coerceAtLeast(1) ?: 1,
                     intervalUnit = intervalUnit,
                     endEpochMillis = endMillis,
+                    repeatCount = repeatCount,
                     enabled = existing?.enabled ?: true
                 )
                 onSave(reminder)

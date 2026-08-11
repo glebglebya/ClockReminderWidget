@@ -16,6 +16,7 @@ import com.example.clockreminder.model.Reminder;
 import com.example.clockreminder.model.RepeatType;
 import java.lang.Class;
 import java.lang.Exception;
+import java.lang.Integer;
 import java.lang.Long;
 import java.lang.Object;
 import java.lang.Override;
@@ -49,7 +50,7 @@ public final class ReminderDao_Impl implements ReminderDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR ABORT INTO `reminders` (`id`,`label`,`colorArgb`,`repeatType`,`startEpochMillis`,`intervalValue`,`intervalUnit`,`endEpochMillis`,`enabled`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?)";
+        return "INSERT OR ABORT INTO `reminders` (`id`,`label`,`colorArgb`,`repeatType`,`startEpochMillis`,`intervalValue`,`intervalUnit`,`endEpochMillis`,`repeatCount`,`enabled`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -69,8 +70,13 @@ public final class ReminderDao_Impl implements ReminderDao {
         } else {
           statement.bindLong(8, entity.getEndEpochMillis());
         }
+        if (entity.getRepeatCount() == null) {
+          statement.bindNull(9);
+        } else {
+          statement.bindLong(9, entity.getRepeatCount());
+        }
         final int _tmp_2 = entity.getEnabled() ? 1 : 0;
-        statement.bindLong(9, _tmp_2);
+        statement.bindLong(10, _tmp_2);
       }
     };
     this.__deletionAdapterOfReminder = new EntityDeletionOrUpdateAdapter<Reminder>(__db) {
@@ -90,7 +96,7 @@ public final class ReminderDao_Impl implements ReminderDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "UPDATE OR ABORT `reminders` SET `id` = ?,`label` = ?,`colorArgb` = ?,`repeatType` = ?,`startEpochMillis` = ?,`intervalValue` = ?,`intervalUnit` = ?,`endEpochMillis` = ?,`enabled` = ? WHERE `id` = ?";
+        return "UPDATE OR ABORT `reminders` SET `id` = ?,`label` = ?,`colorArgb` = ?,`repeatType` = ?,`startEpochMillis` = ?,`intervalValue` = ?,`intervalUnit` = ?,`endEpochMillis` = ?,`repeatCount` = ?,`enabled` = ? WHERE `id` = ?";
       }
 
       @Override
@@ -110,9 +116,14 @@ public final class ReminderDao_Impl implements ReminderDao {
         } else {
           statement.bindLong(8, entity.getEndEpochMillis());
         }
+        if (entity.getRepeatCount() == null) {
+          statement.bindNull(9);
+        } else {
+          statement.bindLong(9, entity.getRepeatCount());
+        }
         final int _tmp_2 = entity.getEnabled() ? 1 : 0;
-        statement.bindLong(9, _tmp_2);
-        statement.bindLong(10, entity.getId());
+        statement.bindLong(10, _tmp_2);
+        statement.bindLong(11, entity.getId());
       }
     };
   }
@@ -189,6 +200,7 @@ public final class ReminderDao_Impl implements ReminderDao {
           final int _cursorIndexOfIntervalValue = CursorUtil.getColumnIndexOrThrow(_cursor, "intervalValue");
           final int _cursorIndexOfIntervalUnit = CursorUtil.getColumnIndexOrThrow(_cursor, "intervalUnit");
           final int _cursorIndexOfEndEpochMillis = CursorUtil.getColumnIndexOrThrow(_cursor, "endEpochMillis");
+          final int _cursorIndexOfRepeatCount = CursorUtil.getColumnIndexOrThrow(_cursor, "repeatCount");
           final int _cursorIndexOfEnabled = CursorUtil.getColumnIndexOrThrow(_cursor, "enabled");
           final List<Reminder> _result = new ArrayList<Reminder>(_cursor.getCount());
           while (_cursor.moveToNext()) {
@@ -217,11 +229,17 @@ public final class ReminderDao_Impl implements ReminderDao {
             } else {
               _tmpEndEpochMillis = _cursor.getLong(_cursorIndexOfEndEpochMillis);
             }
+            final Integer _tmpRepeatCount;
+            if (_cursor.isNull(_cursorIndexOfRepeatCount)) {
+              _tmpRepeatCount = null;
+            } else {
+              _tmpRepeatCount = _cursor.getInt(_cursorIndexOfRepeatCount);
+            }
             final boolean _tmpEnabled;
             final int _tmp_2;
             _tmp_2 = _cursor.getInt(_cursorIndexOfEnabled);
             _tmpEnabled = _tmp_2 != 0;
-            _item = new Reminder(_tmpId,_tmpLabel,_tmpColorArgb,_tmpRepeatType,_tmpStartEpochMillis,_tmpIntervalValue,_tmpIntervalUnit,_tmpEndEpochMillis,_tmpEnabled);
+            _item = new Reminder(_tmpId,_tmpLabel,_tmpColorArgb,_tmpRepeatType,_tmpStartEpochMillis,_tmpIntervalValue,_tmpIntervalUnit,_tmpEndEpochMillis,_tmpRepeatCount,_tmpEnabled);
             _result.add(_item);
           }
           return _result;
@@ -256,6 +274,7 @@ public final class ReminderDao_Impl implements ReminderDao {
           final int _cursorIndexOfIntervalValue = CursorUtil.getColumnIndexOrThrow(_cursor, "intervalValue");
           final int _cursorIndexOfIntervalUnit = CursorUtil.getColumnIndexOrThrow(_cursor, "intervalUnit");
           final int _cursorIndexOfEndEpochMillis = CursorUtil.getColumnIndexOrThrow(_cursor, "endEpochMillis");
+          final int _cursorIndexOfRepeatCount = CursorUtil.getColumnIndexOrThrow(_cursor, "repeatCount");
           final int _cursorIndexOfEnabled = CursorUtil.getColumnIndexOrThrow(_cursor, "enabled");
           final List<Reminder> _result = new ArrayList<Reminder>(_cursor.getCount());
           while (_cursor.moveToNext()) {
@@ -284,11 +303,17 @@ public final class ReminderDao_Impl implements ReminderDao {
             } else {
               _tmpEndEpochMillis = _cursor.getLong(_cursorIndexOfEndEpochMillis);
             }
+            final Integer _tmpRepeatCount;
+            if (_cursor.isNull(_cursorIndexOfRepeatCount)) {
+              _tmpRepeatCount = null;
+            } else {
+              _tmpRepeatCount = _cursor.getInt(_cursorIndexOfRepeatCount);
+            }
             final boolean _tmpEnabled;
             final int _tmp_2;
             _tmp_2 = _cursor.getInt(_cursorIndexOfEnabled);
             _tmpEnabled = _tmp_2 != 0;
-            _item = new Reminder(_tmpId,_tmpLabel,_tmpColorArgb,_tmpRepeatType,_tmpStartEpochMillis,_tmpIntervalValue,_tmpIntervalUnit,_tmpEndEpochMillis,_tmpEnabled);
+            _item = new Reminder(_tmpId,_tmpLabel,_tmpColorArgb,_tmpRepeatType,_tmpStartEpochMillis,_tmpIntervalValue,_tmpIntervalUnit,_tmpEndEpochMillis,_tmpRepeatCount,_tmpEnabled);
             _result.add(_item);
           }
           return _result;
