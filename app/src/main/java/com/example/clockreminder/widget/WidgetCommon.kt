@@ -6,6 +6,7 @@ import android.content.Context
 import android.widget.RemoteViews
 import com.example.clockreminder.R
 import com.example.clockreminder.data.AppDatabase
+import com.example.clockreminder.data.WidgetSettingsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -16,14 +17,15 @@ object WidgetCommon {
         context: Context,
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray,
-        layoutId: Int = R.layout.widget_clock,
-        faceStyle: ClockFaceRenderer.WidgetStyle = ClockFaceRenderer.WidgetStyle.STYLE_1
+        layoutId: Int = R.layout.widget_clock
     ) {
         if (appWidgetIds.isEmpty()) return
+        val style = WidgetSettingsRepository(context).getStyle()
+        
         CoroutineScope(Dispatchers.IO).launch {
             val reminders = AppDatabase.get(context).reminderDao().getAllEnabled()
             val sizePx = 640
-            val bmp = ClockFaceRenderer.render(sizePx, reminders, faceStyle)
+            val bmp = ClockFaceRenderer.render(sizePx, reminders, style)
             for (id in appWidgetIds) {
                 val views = RemoteViews(context.packageName, layoutId)
                 views.setImageViewBitmap(R.id.widget_clock_image, bmp)
@@ -36,17 +38,12 @@ object WidgetCommon {
         val mgr = AppWidgetManager.getInstance(context)
         val ids = mgr.getAppWidgetIds(ComponentName(context, providerClass))
         if (ids.isNotEmpty()) {
-            val style = if (providerClass == ClockWidgetStyle2Provider::class.java) {
-                ClockFaceRenderer.WidgetStyle.STYLE_2
-            } else {
-                ClockFaceRenderer.WidgetStyle.STYLE_1
-            }
-            updateWidgets(context, mgr, ids, faceStyle = style)
+            updateWidgets(context, mgr, ids)
         }
     }
 
+    /** Обновить единственный оставшийся виджет во всех его экземплярах. */
     fun updateAllStyles(context: Context) {
         updateAllInstances(context, ClockWidgetProvider::class.java)
-        updateAllInstances(context, ClockWidgetStyle2Provider::class.java)
     }
 }

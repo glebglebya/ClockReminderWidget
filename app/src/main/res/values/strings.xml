@@ -1,7 +1,5 @@
 <resources>
     <string name="app_name">Часы-напоминания</string>
-    <string name="widget_label">Круглые часы (Стиль 1)</string>
-    <string name="widget_description">Круглые часы с цветными напоминаниями</string>
-    <string name="widget_label_style2">Круглые часы (Стиль 2)</string>
-    <string name="widget_description_style2">Альтернативный стиль круглых часов</string>
+    <string name="widget_label">Часы с напоминаниями</string>
+    <string name="widget_description">Круглые часы с настраиваемым стилем циферблата</string>
 </resources>

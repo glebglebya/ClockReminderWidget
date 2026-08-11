@@ -1003,9 +1003,7 @@ int string template_percent 0x7f0d006e
 int string tooltip_description 0x7f0d006f
 int string tooltip_label 0x7f0d0070
 int string widget_description 0x7f0d0071
-int string widget_description_style2 0x7f0d0072
-int string widget_label 0x7f0d0073
-int string widget_label_style2 0x7f0d0074
+int string widget_label 0x7f0d0072
 int style AlertDialog_AppCompat 0x7f0e0000
 int style AlertDialog_AppCompat_Light 0x7f0e0001
 int style Animation_AppCompat_Dialog 0x7f0e0002
@@ -1850,4 +1848,3 @@ int styleable ViewStubCompat_android_id 0
 int styleable ViewStubCompat_android_layout 1
 int styleable ViewStubCompat_android_inflatedId 2
 int xml widget_info 0x7f100000
-int xml widget_info_style2 0x7f100001

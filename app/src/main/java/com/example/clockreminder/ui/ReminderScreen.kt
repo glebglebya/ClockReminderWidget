@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,12 +37,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.clockreminder.data.ReminderRepository
+import com.example.clockreminder.data.WidgetSettingsRepository
 import com.example.clockreminder.model.IntervalUnit
 import com.example.clockreminder.model.Reminder
 import com.example.clockreminder.model.RepeatType
+import com.example.clockreminder.widget.ClockFaceRenderer
+import com.example.clockreminder.widget.WidgetCommon
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
@@ -51,10 +57,14 @@ import java.time.format.DateTimeFormatter
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReminderScreen(repo: ReminderRepository) {
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val reminders by repo.observeAll().collectAsStateWithLifecycle(initialValue = emptyList())
     var showDialog by remember { mutableStateOf(false) }
     var editing by remember { mutableStateOf<Reminder?>(null) }
+
+    val settings = remember { WidgetSettingsRepository(context) }
+    var currentStyle by remember { mutableStateOf(settings.getStyle()) }
 
     Scaffold(
         topBar = { TopAppBar(title = { Text("Часы-напоминания") }) },
@@ -64,27 +74,77 @@ fun ReminderScreen(repo: ReminderRepository) {
             }
         }
     ) { padding ->
-        if (reminders.isEmpty()) {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Нет напоминаний. Нажмите + чтобы добавить.")
-            }
-        } else {
-            LazyColumn(
-                Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-            ) {
-                items(reminders, key = { it.id }) { reminder ->
-                    ReminderRow(
-                        reminder = reminder,
-                        onClick = { editing = reminder; showDialog = true },
-                        onDelete = { scope.launch { repo.delete(reminder) } }
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            // Секция настроек стиля виджета
+            Column(Modifier.padding(16.dp)) {
+                Text("Стиль виджета", style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.height(8.dp))
+                Row(Modifier.fillMaxWidth()) {
+                    FilterChip(
+                        selected = currentStyle == ClockFaceRenderer.WidgetStyle.STYLE_1,
+                        onClick = {
+                            currentStyle = ClockFaceRenderer.WidgetStyle.STYLE_1
+                            settings.setStyle(currentStyle)
+                            WidgetCommon.updateAllStyles(context)
+                        },
+                        label = { Text("24ч") }
                     )
+                    Spacer(Modifier.width(4.dp))
+                    FilterChip(
+                        selected = currentStyle == ClockFaceRenderer.WidgetStyle.STYLE_2,
+                        onClick = {
+                            currentStyle = ClockFaceRenderer.WidgetStyle.STYLE_2
+                            settings.setStyle(currentStyle)
+                            WidgetCommon.updateAllStyles(context)
+                        },
+                        label = { Text("24ч+") }
+                    )
+                    Spacer(Modifier.width(4.dp))
+                    FilterChip(
+                        selected = currentStyle == ClockFaceRenderer.WidgetStyle.STYLE_3,
+                        onClick = {
+                            currentStyle = ClockFaceRenderer.WidgetStyle.STYLE_3
+                            settings.setStyle(currentStyle)
+                            WidgetCommon.updateAllStyles(context)
+                        },
+                        label = { Text("12ч") }
+                    )
+                    Spacer(Modifier.width(4.dp))
+                    FilterChip(
+                        selected = currentStyle == ClockFaceRenderer.WidgetStyle.STYLE_4,
+                        onClick = {
+                            currentStyle = ClockFaceRenderer.WidgetStyle.STYLE_4
+                            settings.setStyle(currentStyle)
+                            WidgetCommon.updateAllStyles(context)
+                        },
+                        label = { Text("12ч+") }
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(8.dp))
+            Box(Modifier.height(1.dp).fillMaxWidth().background(Color.Gray.copy(alpha = 0.2f)))
+
+            if (reminders.isEmpty()) {
+                Box(
+                    Modifier.weight(1f).fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Нет напоминаний. Нажмите + чтобы добавить.")
+                }
+            } else {
+                LazyColumn(Modifier.weight(1f).fillMaxWidth()) {
+                    items(reminders, key = { it.id }) { reminder ->
+                        ReminderRow(
+                            reminder = reminder,
+                            onClick = { editing = reminder; showDialog = true },
+                            onDelete = { scope.launch { repo.delete(reminder) } }
+                        )
+                    }
                 }
             }
         }

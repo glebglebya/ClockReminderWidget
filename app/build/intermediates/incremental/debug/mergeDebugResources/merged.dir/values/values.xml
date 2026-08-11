@@ -397,10 +397,8 @@
     <string name="template_percent"><ns1:g id="percentage">%1$d</ns1:g> percent.</string>
     <string name="tooltip_description">tooltip</string>
     <string name="tooltip_label">show tooltip</string>
-    <string name="widget_description">Круглые часы с цветными напоминаниями</string>
-    <string name="widget_description_style2">Альтернативный стиль круглых часов</string>
-    <string name="widget_label">Круглые часы (Стиль 1)</string>
-    <string name="widget_label_style2">Круглые часы (Стиль 2)</string>
+    <string name="widget_description">Круглые часы с настраиваемым стилем циферблата</string>
+    <string name="widget_label">Часы с напоминаниями</string>
     <style name="AlertDialog.AppCompat" parent="Base.AlertDialog.AppCompat"/>
     <style name="AlertDialog.AppCompat.Light" parent="Base.AlertDialog.AppCompat.Light"/>
     <style name="Animation.AppCompat.Dialog" parent="Base.Animation.AppCompat.Dialog"/>

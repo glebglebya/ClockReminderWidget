@@ -56,20 +56,6 @@
                 android:resource="@xml/widget_info" />
         </receiver>
 
-        <!-- Виджет "Круглые часы (Стиль 2)" -->
-        <receiver
-            android:name="com.example.clockreminder.widget.ClockWidgetStyle2Provider"
-            android:exported="true"
-            android:label="@string/widget_label_style2" >
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/widget_info_style2" />
-        </receiver>
-
         <!-- Ежеминутное обновление положения стрелок, запускается AlarmManager-ом -->
         <receiver
             android:name="com.example.clockreminder.widget.WidgetUpdateReceiver"

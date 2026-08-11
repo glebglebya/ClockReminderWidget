@@ -11,20 +11,27 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * Рисует круглый 24-часовой циферблат с часовой и минутной стрелками
- * и цветными кружками-напоминаниями вокруг края в виде Bitmap,
- * который затем вставляется в RemoteViews (ImageView) виджета.
+ * Рисует круглый циферблат (24ч или 12ч) с часовой и минутной стрелками
+ * и цветными кружками-напоминаниями.
  */
 object ClockFaceRenderer {
 
-    enum class WidgetStyle { STYLE_1, STYLE_2 }
+    enum class WidgetStyle {
+        STYLE_1, // 24ч, подписи каждые 3 часа
+        STYLE_2, // 24ч, все подписи (промежуточные бледнее)
+        STYLE_3, // 12ч, подписи каждые 3 часа
+        STYLE_4  // 12ч, все подписи (промежуточные бледнее)
+    }
 
     fun render(sizePx: Int, reminders: List<Reminder>, faceStyle: WidgetStyle = WidgetStyle.STYLE_1): Bitmap {
         val bmp = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bmp)
         val cx = sizePx / 2f
         val cy = sizePx / 2f
-        val radius = sizePx / 2f * 0.95f // Используем больше места, так как точки теперь внутри
+        val radius = sizePx / 2f * 0.95f
+
+        val is12h = faceStyle == WidgetStyle.STYLE_3 || faceStyle == WidgetStyle.STYLE_4
+        val cycle = if (is12h) 12.0 else 24.0
 
         // фон циферблата
         val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -50,9 +57,10 @@ object ClockFaceRenderer {
             textAlign = Paint.Align.CENTER
         }
 
-        // 24 деления, подписи каждые 3 часа
-        for (h in 0 until 24) {
-            val angle = Math.toRadians((h / 24.0) * 360.0 - 90.0)
+        // деления и подписи
+        val totalTicks = cycle.toInt()
+        for (h in 0 until totalTicks) {
+            val angle = Math.toRadians((h / cycle) * 360.0 - 90.0)
             val outerR = radius * 0.98f
             val innerR = radius * 0.92f
             val x1 = cx + outerR * cos(angle).toFloat()
@@ -61,29 +69,35 @@ object ClockFaceRenderer {
             val y2 = cy + innerR * sin(angle).toFloat()
             canvas.drawLine(x1, y1, x2, y2, tickPaint)
 
-            if (h % 3 == 0) {
-                labelPaint.alpha = 180
+            val isMainTick = h % 3 == 0
+            val shouldDrawLabel = isMainTick || (faceStyle == WidgetStyle.STYLE_2) || (faceStyle == WidgetStyle.STYLE_4)
+            
+            if (shouldDrawLabel) {
+                labelPaint.alpha = if (isMainTick) 180 else 60
+                val labelText = if (is12h && h == 0) "12" else h.toString()
                 val labelR = radius * 0.83f
                 val lx = cx + labelR * cos(angle).toFloat()
                 val ly = cy + labelR * sin(angle).toFloat() + labelPaint.textSize * 0.3f
-                canvas.drawText(h.toString(), lx, ly, labelPaint)
-            } else if (faceStyle == WidgetStyle.STYLE_2) {
-                labelPaint.alpha = 60
-                val labelR = radius * 0.83f
-                val lx = cx + labelR * cos(angle).toFloat()
-                val ly = cy + labelR * sin(angle).toFloat() + labelPaint.textSize * 0.3f
-                canvas.drawText(h.toString(), lx, ly, labelPaint)
+                canvas.drawText(labelText, lx, ly, labelPaint)
             }
-
         }
 
         // --- кружки-напоминания сегодняшнего дня ---
+        val now = LocalTime.now()
+        val isNowPm = now.hour >= 12
+        
         val occurrences = ReminderOccurrences.todaysOccurrences(reminders, LocalDate.now())
         val dotRadius = sizePx * 0.02f
         val dotOrbit = radius * 0.68f
         for (occ in occurrences) {
-            val hourFraction = occ.time.hour + occ.time.minute / 60.0
-            val angle = Math.toRadians((hourFraction / 24.0) * 360.0 - 90.0)
+            if (is12h) {
+                val isOccPm = occ.time.hour >= 12
+                if (isOccPm != isNowPm) continue
+            }
+            
+            val hourValue = if (is12h) (occ.time.hour % 12).toDouble() else occ.time.hour.toDouble()
+            val hourFraction = hourValue + occ.time.minute / 60.0
+            val angle = Math.toRadians((hourFraction / cycle) * 360.0 - 90.0)
             val dx = cx + dotOrbit * cos(angle).toFloat()
             val dy = cy + dotOrbit * sin(angle).toFloat()
             val dotFill = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -94,10 +108,10 @@ object ClockFaceRenderer {
         }
 
         // --- стрелки ---
-        val now = LocalTime.now()
-        val hourFraction = now.hour + now.minute / 60.0
-        val hourAngle = Math.toRadians((hourFraction / 24.0) * 360.0 - 90.0) // полный круг за 24ч
-        val minuteAngle = Math.toRadians((now.minute / 60.0) * 360.0 - 90.0) // полный круг за 60мин
+        val hourVal = if (is12h) (now.hour % 12).toDouble() else now.hour.toDouble()
+        val hourFraction = hourVal + now.minute / 60.0
+        val hourAngle = Math.toRadians((hourFraction / cycle) * 360.0 - 90.0)
+        val minuteAngle = Math.toRadians((now.minute / 60.0) * 360.0 - 90.0)
 
         val hourHandPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.WHITE
