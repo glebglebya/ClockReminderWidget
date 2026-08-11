@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="purple_500">#6650a4</color>
+    <color name="white">#FFFFFFFF</color>
+    <string name="app_name">Часы-напоминания</string>
+    <string name="widget_description">Круглые часы с цветными напоминаниями</string>
+    <string name="widget_label">Круглые часы 24ч</string>
+    <style name="Theme.ClockReminder" parent="android:Theme.Material.Light.NoActionBar"/>
+</resources>

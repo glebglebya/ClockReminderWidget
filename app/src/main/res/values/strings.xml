@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Часы-напоминания</string>
+    <string name="widget_label">Круглые часы 24ч</string>
+    <string name="widget_description">Круглые часы с цветными напоминаниями</string>
+</resources>
