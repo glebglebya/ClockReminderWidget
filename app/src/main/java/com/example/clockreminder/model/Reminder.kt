@@ -6,9 +6,10 @@ import androidx.room.PrimaryKey
 /**
  * Одно напоминание, отображаемое цветным кружком на циферблате.
  *
- * Поля startEpochMillis / intervalHours используются только для RepeatType.INTERVAL_HOURS.
- * Поля timeOfDayMinutes / rangeStartEpochDay / rangeEndEpochDay используются только
- * для RepeatType.DAILY_RANGE.
+ * @param startEpochMillis Время первого (или единственного) срабатывания.
+ * @param intervalValue Значение интервала (для RepeatType.REPEATING).
+ * @param intervalUnit Единица измерения интервала (для RepeatType.REPEATING).
+ * @param endEpochMillis Время окончания повторений (null — бесконечно).
  */
 @Entity(tableName = "reminders")
 data class Reminder(
@@ -17,14 +18,11 @@ data class Reminder(
     val colorArgb: Int,
     val repeatType: RepeatType,
 
-    // --- INTERVAL_HOURS ---
-    val startEpochMillis: Long = 0L,
-    val intervalHours: Int = 0,
+    val startEpochMillis: Long,
 
-    // --- DAILY_RANGE ---
-    val timeOfDayMinutes: Int = 0,       // минуты от полуночи, например 16:00 -> 960
-    val rangeStartEpochDay: Long = 0L,   // LocalDate.toEpochDay()
-    val rangeEndEpochDay: Long = 0L,
+    val intervalValue: Int = 0,
+    val intervalUnit: IntervalUnit = IntervalUnit.DAYS,
+    val endEpochMillis: Long? = null,
 
     val enabled: Boolean = true
 )

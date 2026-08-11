@@ -31,12 +31,12 @@ public final class AppDatabase_Impl extends AppDatabase {
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(1) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(2) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS `reminders` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `label` TEXT NOT NULL, `colorArgb` INTEGER NOT NULL, `repeatType` TEXT NOT NULL, `startEpochMillis` INTEGER NOT NULL, `intervalHours` INTEGER NOT NULL, `timeOfDayMinutes` INTEGER NOT NULL, `rangeStartEpochDay` INTEGER NOT NULL, `rangeEndEpochDay` INTEGER NOT NULL, `enabled` INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `reminders` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `label` TEXT NOT NULL, `colorArgb` INTEGER NOT NULL, `repeatType` TEXT NOT NULL, `startEpochMillis` INTEGER NOT NULL, `intervalValue` INTEGER NOT NULL, `intervalUnit` TEXT NOT NULL, `endEpochMillis` INTEGER, `enabled` INTEGER NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c473fb7530cd09d4101bf7429032d0cb')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e34c3ac73699cf800cf35c4de045578f')");
       }
 
       @Override
@@ -85,16 +85,15 @@ public final class AppDatabase_Impl extends AppDatabase {
       @NonNull
       public RoomOpenHelper.ValidationResult onValidateSchema(
           @NonNull final SupportSQLiteDatabase db) {
-        final HashMap<String, TableInfo.Column> _columnsReminders = new HashMap<String, TableInfo.Column>(10);
+        final HashMap<String, TableInfo.Column> _columnsReminders = new HashMap<String, TableInfo.Column>(9);
         _columnsReminders.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsReminders.put("label", new TableInfo.Column("label", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsReminders.put("colorArgb", new TableInfo.Column("colorArgb", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsReminders.put("repeatType", new TableInfo.Column("repeatType", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsReminders.put("startEpochMillis", new TableInfo.Column("startEpochMillis", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsReminders.put("intervalHours", new TableInfo.Column("intervalHours", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsReminders.put("timeOfDayMinutes", new TableInfo.Column("timeOfDayMinutes", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsReminders.put("rangeStartEpochDay", new TableInfo.Column("rangeStartEpochDay", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsReminders.put("rangeEndEpochDay", new TableInfo.Column("rangeEndEpochDay", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsReminders.put("intervalValue", new TableInfo.Column("intervalValue", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsReminders.put("intervalUnit", new TableInfo.Column("intervalUnit", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsReminders.put("endEpochMillis", new TableInfo.Column("endEpochMillis", "INTEGER", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsReminders.put("enabled", new TableInfo.Column("enabled", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysReminders = new HashSet<TableInfo.ForeignKey>(0);
         final HashSet<TableInfo.Index> _indicesReminders = new HashSet<TableInfo.Index>(0);
@@ -107,7 +106,7 @@ public final class AppDatabase_Impl extends AppDatabase {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "c473fb7530cd09d4101bf7429032d0cb", "a8b87f4defb521c32b2662603d0c29e1");
+    }, "e34c3ac73699cf800cf35c4de045578f", "ef4882b9cf35f2a3109d6cde128810fb");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;

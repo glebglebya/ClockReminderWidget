@@ -7,16 +7,14 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -25,6 +23,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -32,11 +31,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.example.clockreminder.model.IntervalUnit
 import com.example.clockreminder.model.Reminder
 import com.example.clockreminder.model.RepeatType
 import java.time.Instant
@@ -61,45 +63,38 @@ fun AddEditReminderDialog(
     val context = LocalContext.current
     var label by remember { mutableStateOf(existing?.label ?: "") }
     var color by remember { mutableStateOf(existing?.colorArgb?.let { Color(it) } ?: PALETTE[0]) }
-    var mode by remember { mutableStateOf(existing?.repeatType ?: RepeatType.INTERVAL_HOURS) }
+    var repeatType by remember { mutableStateOf(existing?.repeatType ?: RepeatType.ONE_TIME) }
 
-    // режим "раз в N часов"
+    // Дата и время начала
     var startDate by remember {
         mutableStateOf(
-            existing?.takeIf { it.repeatType == RepeatType.INTERVAL_HOURS }
-                ?.let { Instant.ofEpochMilli(it.startEpochMillis).atZone(ZoneId.systemDefault()).toLocalDate() }
+            existing?.let { Instant.ofEpochMilli(it.startEpochMillis).atZone(ZoneId.systemDefault()).toLocalDate() }
                 ?: LocalDate.now()
         )
     }
     var startTime by remember {
         mutableStateOf(
-            existing?.takeIf { it.repeatType == RepeatType.INTERVAL_HOURS }
-                ?.let { Instant.ofEpochMilli(it.startEpochMillis).atZone(ZoneId.systemDefault()).toLocalTime() }
-                ?: LocalTime.of(11, 0)
+            existing?.let { Instant.ofEpochMilli(it.startEpochMillis).atZone(ZoneId.systemDefault()).toLocalTime() }
+                ?: LocalTime.now().withSecond(0).withNano(0)
         )
     }
-    var intervalHoursText by remember { mutableStateOf((existing?.intervalHours ?: 7).toString()) }
 
-    // режим "каждый день в диапазоне дат"
-    var dailyTime by remember {
+    // Параметры повторения
+    var intervalValueText by remember { mutableStateOf((existing?.intervalValue ?: 1).toString()) }
+    var intervalUnit by remember { mutableStateOf(existing?.intervalUnit ?: IntervalUnit.DAYS) }
+
+    // Окончание
+    var hasEndDate by remember { mutableStateOf(existing?.endEpochMillis != null) }
+    var endDate by remember {
         mutableStateOf(
-            existing?.takeIf { it.repeatType == RepeatType.DAILY_RANGE }
-                ?.let { LocalTime.ofSecondOfDay((it.timeOfDayMinutes * 60).toLong()) }
-                ?: LocalTime.of(16, 0)
+            existing?.endEpochMillis?.let { Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate() }
+                ?: LocalDate.now().plusWeeks(1)
         )
     }
-    var rangeStart by remember {
+    var endTime by remember {
         mutableStateOf(
-            existing?.takeIf { it.repeatType == RepeatType.DAILY_RANGE }
-                ?.let { LocalDate.ofEpochDay(it.rangeStartEpochDay) }
-                ?: LocalDate.now()
-        )
-    }
-    var rangeEnd by remember {
-        mutableStateOf(
-            existing?.takeIf { it.repeatType == RepeatType.DAILY_RANGE }
-                ?.let { LocalDate.ofEpochDay(it.rangeEndEpochDay) }
-                ?: LocalDate.now().plusDays(3)
+            existing?.endEpochMillis?.let { Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalTime() }
+                ?: LocalTime.of(23, 59)
         )
     }
 
@@ -135,11 +130,11 @@ fun AddEditReminderDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(16.dp))
                 Text("Цвет")
                 Row(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
                     PALETTE.forEach { c ->
-                        val isSelected = c == color
+                        val isSelected = c.toArgb() == color.toArgb()
                         Box(
                             Modifier
                                 .size(42.dp)
@@ -163,94 +158,122 @@ fun AddEditReminderDialog(
                     }
                 }
 
-
-                Spacer(Modifier.height(12.dp))
-                Row {
+                Spacer(Modifier.height(16.dp))
+                Text("Тип")
+                Row(Modifier.fillMaxWidth()) {
                     FilterChip(
-                        selected = mode == RepeatType.INTERVAL_HOURS,
-                        onClick = { mode = RepeatType.INTERVAL_HOURS },
-                        label = { Text("Через N часов") }
+                        selected = repeatType == RepeatType.ONE_TIME,
+                        onClick = { repeatType = RepeatType.ONE_TIME },
+                        label = { Text("Разовое") }
                     )
                     Spacer(Modifier.width(8.dp))
                     FilterChip(
-                        selected = mode == RepeatType.DAILY_RANGE,
-                        onClick = { mode = RepeatType.DAILY_RANGE },
-                        label = { Text("Ежедневно, диапазон дат") }
+                        selected = repeatType == RepeatType.REPEATING,
+                        onClick = { repeatType = RepeatType.REPEATING },
+                        label = { Text("Повторяющееся") }
                     )
                 }
 
-                Spacer(Modifier.height(12.dp))
-
-                if (mode == RepeatType.INTERVAL_HOURS) {
-                    OutlinedTextField(
-                        value = intervalHoursText,
-                        onValueChange = { intervalHoursText = it.filter { ch -> ch.isDigit() } },
-                        label = { Text("Интервал, часов") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(16.dp))
+                Text(if (repeatType == RepeatType.ONE_TIME) "Когда" else "Дата и время начала")
+                Row(Modifier.fillMaxWidth()) {
                     OutlinedButton(
                         onClick = { pickDate(startDate) { startDate = it } },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.weight(1f)
                     ) {
-                        Text("Дата начала: " + startDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))
+                        Text(startDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))
                     }
-                    Spacer(Modifier.height(4.dp))
+                    Spacer(Modifier.width(8.dp))
                     OutlinedButton(
                         onClick = { pickTime(startTime) { startTime = it } },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.weight(1f)
                     ) {
-                        Text("Время начала: " + startTime.format(DateTimeFormatter.ofPattern("HH:mm")))
+                        Text(startTime.format(DateTimeFormatter.ofPattern("HH:mm")))
                     }
-                } else {
-                    OutlinedButton(
-                        onClick = { pickTime(dailyTime) { dailyTime = it } },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Время: " + dailyTime.format(DateTimeFormatter.ofPattern("HH:mm")))
+                }
+
+                if (repeatType == RepeatType.REPEATING) {
+                    Spacer(Modifier.height(16.dp))
+                    Text("Интервал")
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        OutlinedTextField(
+                            value = intervalValueText,
+                            onValueChange = { intervalValueText = it.filter { ch -> ch.isDigit() } },
+                            modifier = Modifier.width(80.dp),
+                            singleLine = true
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Column {
+                            Row {
+                                FilterChip(
+                                    selected = intervalUnit == IntervalUnit.MINUTES,
+                                    onClick = { intervalUnit = IntervalUnit.MINUTES },
+                                    label = { Text("Мин") }
+                                )
+                                Spacer(Modifier.width(4.dp))
+                                FilterChip(
+                                    selected = intervalUnit == IntervalUnit.HOURS,
+                                    onClick = { intervalUnit = IntervalUnit.HOURS },
+                                    label = { Text("Час") }
+                                )
+                                Spacer(Modifier.width(4.dp))
+                                FilterChip(
+                                    selected = intervalUnit == IntervalUnit.DAYS,
+                                    onClick = { intervalUnit = IntervalUnit.DAYS },
+                                    label = { Text("Дн") }
+                                )
+                            }
+                        }
                     }
-                    Spacer(Modifier.height(8.dp))
-                    OutlinedButton(
-                        onClick = { pickDate(rangeStart) { rangeStart = it } },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("С: " + rangeStart.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))
+
+                    Spacer(Modifier.height(16.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("Ограничить дату окончания", modifier = Modifier.weight(1f))
+                        Switch(checked = hasEndDate, onCheckedChange = { hasEndDate = it })
                     }
-                    Spacer(Modifier.height(4.dp))
-                    OutlinedButton(
-                        onClick = { pickDate(rangeEnd) { rangeEnd = it } },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("По: " + rangeEnd.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))
+
+                    if (hasEndDate) {
+                        Spacer(Modifier.height(8.dp))
+                        Row(Modifier.fillMaxWidth()) {
+                            OutlinedButton(
+                                onClick = { pickDate(endDate) { endDate = it } },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text(endDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))
+                            }
+                            Spacer(Modifier.width(8.dp))
+                            OutlinedButton(
+                                onClick = { pickTime(endTime) { endTime = it } },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text(endTime.format(DateTimeFormatter.ofPattern("HH:mm")))
+                            }
+                        }
                     }
                 }
             }
         },
         confirmButton = {
             TextButton(onClick = {
-                val reminder = when (mode) {
-                    RepeatType.INTERVAL_HOURS -> {
-                        val startMillis = LocalDateTime.of(startDate, startTime)
-                            .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-                        Reminder(
-                            id = existing?.id ?: 0,
-                            label = label,
-                            colorArgb = color.toArgbInt(),
-                            repeatType = RepeatType.INTERVAL_HOURS,
-                            startEpochMillis = startMillis,
-                            intervalHours = intervalHoursText.toIntOrNull()?.coerceAtLeast(1) ?: 1
-                        )
-                    }
-                    RepeatType.DAILY_RANGE -> Reminder(
-                        id = existing?.id ?: 0,
-                        label = label,
-                        colorArgb = color.toArgbInt(),
-                        repeatType = RepeatType.DAILY_RANGE,
-                        timeOfDayMinutes = dailyTime.hour * 60 + dailyTime.minute,
-                        rangeStartEpochDay = rangeStart.toEpochDay(),
-                        rangeEndEpochDay = maxOf(rangeEnd.toEpochDay(), rangeStart.toEpochDay())
-                    )
-                }
+                val startMillis = LocalDateTime.of(startDate, startTime)
+                    .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                
+                val endMillis = if (repeatType == RepeatType.REPEATING && hasEndDate) {
+                    LocalDateTime.of(endDate, endTime)
+                        .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                } else null
+
+                val reminder = Reminder(
+                    id = existing?.id ?: 0,
+                    label = label,
+                    colorArgb = color.toArgb(),
+                    repeatType = repeatType,
+                    startEpochMillis = startMillis,
+                    intervalValue = intervalValueText.toIntOrNull()?.coerceAtLeast(1) ?: 1,
+                    intervalUnit = intervalUnit,
+                    endEpochMillis = endMillis,
+                    enabled = existing?.enabled ?: true
+                )
                 onSave(reminder)
             }) { Text("Сохранить") }
         },
@@ -259,10 +282,3 @@ fun AddEditReminderDialog(
         }
     )
 }
-
-private fun Color.toArgbInt(): Int = android.graphics.Color.argb(
-    (alpha * 255).toInt(),
-    (red * 255).toInt(),
-    (green * 255).toInt(),
-    (blue * 255).toInt()
-)

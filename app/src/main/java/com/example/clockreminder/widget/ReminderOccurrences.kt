@@ -1,5 +1,6 @@
 package com.example.clockreminder.widget
 
+import com.example.clockreminder.model.IntervalUnit
 import com.example.clockreminder.model.Reminder
 import com.example.clockreminder.model.RepeatType
 import java.time.Instant
@@ -7,6 +8,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 
 /** Одно фактическое появление напоминания сегодня — время + цвет + подпись. */
 data class Occurrence(val time: LocalTime, val colorArgb: Int, val label: String)
@@ -23,37 +25,73 @@ object ReminderOccurrences {
         zone: ZoneId = ZoneId.systemDefault()
     ): List<Occurrence> {
         val result = mutableListOf<Occurrence>()
-        val dayStart = today.atStartOfDay(zone).toInstant().toEpochMilli()
-        val dayEnd = today.plusDays(1).atStartOfDay(zone).toInstant().toEpochMilli()
+        val dayStartInstant = today.atStartOfDay(zone).toInstant()
+        val dayEndInstant = today.plusDays(1).atStartOfDay(zone).toInstant()
+        
+        val dayStart = dayStartInstant.toEpochMilli()
+        val dayEnd = dayEndInstant.toEpochMilli()
 
         for (r in reminders) {
             if (!r.enabled) continue
+            
             when (r.repeatType) {
-                RepeatType.INTERVAL_HOURS -> {
-                    if (r.intervalHours <= 0) continue
-                    val intervalMillis = r.intervalHours * 3_600_000L
-                    if (r.startEpochMillis >= dayEnd) continue // ещё не началось
-
-                    // находим первое появление >= dayStart
-                    var t = r.startEpochMillis
-                    if (t < dayStart) {
-                        val steps = (dayStart - t + intervalMillis - 1) / intervalMillis
-                        t += steps * intervalMillis
-                    }
-                    while (t < dayEnd) {
-                        if (t >= dayStart) {
-                            val ldt = LocalDateTime.ofInstant(Instant.ofEpochMilli(t), zone)
-                            result.add(Occurrence(ldt.toLocalTime(), r.colorArgb, r.label))
-                        }
-                        t += intervalMillis
+                RepeatType.ONE_TIME -> {
+                    if (r.startEpochMillis in dayStart until dayEnd) {
+                        val ldt = LocalDateTime.ofInstant(Instant.ofEpochMilli(r.startEpochMillis), zone)
+                        result.add(Occurrence(ldt.toLocalTime(), r.colorArgb, r.label))
                     }
                 }
+                RepeatType.REPEATING -> {
+                    if (r.intervalValue <= 0) continue
+                    if (r.startEpochMillis >= dayEnd) continue
+                    if (r.endEpochMillis != null && r.endEpochMillis < dayStart) continue
 
-                RepeatType.DAILY_RANGE -> {
-                    val todayEpochDay = today.toEpochDay()
-                    if (todayEpochDay in r.rangeStartEpochDay..r.rangeEndEpochDay) {
-                        val time = LocalTime.ofSecondOfDay((r.timeOfDayMinutes * 60).toLong())
-                        result.add(Occurrence(time, r.colorArgb, r.label))
+                    var current = Instant.ofEpochMilli(r.startEpochMillis).atZone(zone)
+                    
+                    // Пропускаем интервалы до начала сегодняшнего дня
+                    if (current.toInstant().isBefore(dayStartInstant)) {
+                        when (r.intervalUnit) {
+                            IntervalUnit.MINUTES, IntervalUnit.HOURS -> {
+                                val unitMillis = if (r.intervalUnit == IntervalUnit.MINUTES) 60_000L else 3_600_000L
+                                val intervalMillis = r.intervalValue * unitMillis
+                                val diff = dayStart - r.startEpochMillis
+                                val skipCount = diff / intervalMillis
+                                current = current.plus(skipCount * intervalMillis, ChronoUnit.MILLIS)
+                                while (current.toInstant().isBefore(dayStartInstant)) {
+                                    current = if (r.intervalUnit == IntervalUnit.MINUTES) {
+                                        current.plusMinutes(r.intervalValue.toLong())
+                                    } else {
+                                        current.plusHours(r.intervalValue.toLong())
+                                    }
+                                }
+                            }
+                            IntervalUnit.DAYS -> {
+                                // Для дней используем ChronoUnit.DAYS.between для более точного пропуска
+                                val startLocalDate = current.toLocalDate()
+                                val daysBetween = ChronoUnit.DAYS.between(startLocalDate, today)
+                                val skipCount = daysBetween / r.intervalValue
+                                current = current.plusDays(skipCount * r.intervalValue)
+                                while (current.toInstant().isBefore(dayStartInstant)) {
+                                    current = current.plusDays(r.intervalValue.toLong())
+                                }
+                            }
+                        }
+                    }
+
+                    // Собираем все вхождения в течение сегодняшнего дня
+                    while (current.toInstant().isBefore(dayEndInstant)) {
+                        val t = current.toInstant().toEpochMilli()
+                        if (t >= dayStart && (r.endEpochMillis == null || t <= r.endEpochMillis)) {
+                            result.add(Occurrence(current.toLocalTime(), r.colorArgb, r.label))
+                        }
+                        
+                        current = when (r.intervalUnit) {
+                            IntervalUnit.MINUTES -> current.plusMinutes(r.intervalValue.toLong())
+                            IntervalUnit.HOURS -> current.plusHours(r.intervalValue.toLong())
+                            IntervalUnit.DAYS -> current.plusDays(r.intervalValue.toLong())
+                        }
+                        
+                        if (r.endEpochMillis != null && current.toInstant().toEpochMilli() > r.endEpochMillis) break
                     }
                 }
             }

@@ -38,9 +38,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.clockreminder.data.ReminderRepository
+import com.example.clockreminder.model.IntervalUnit
 import com.example.clockreminder.model.Reminder
 import com.example.clockreminder.model.RepeatType
 import kotlinx.coroutines.launch
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
@@ -129,20 +131,26 @@ private fun ReminderRow(reminder: Reminder, onClick: () -> Unit, onDelete: () ->
 }
 
 private fun describeSchedule(r: Reminder): String {
+    val start = Instant.ofEpochMilli(r.startEpochMillis)
+        .atZone(ZoneId.systemDefault())
+    val startStr = start.format(DateTimeFormatter.ofPattern("dd.MM HH:mm"))
+
     return when (r.repeatType) {
-        RepeatType.INTERVAL_HOURS -> {
-            val start = java.time.Instant.ofEpochMilli(r.startEpochMillis)
-                .atZone(ZoneId.systemDefault())
-            "Раз в ${r.intervalHours} ч, начиная с " +
-                start.format(DateTimeFormatter.ofPattern("dd.MM HH:mm"))
-        }
-        RepeatType.DAILY_RANGE -> {
-            val start = LocalDate.ofEpochDay(r.rangeStartEpochDay)
-            val end = LocalDate.ofEpochDay(r.rangeEndEpochDay)
-            val time = LocalTime.ofSecondOfDay((r.timeOfDayMinutes * 60).toLong())
-            "Ежедневно в " + time.format(DateTimeFormatter.ofPattern("HH:mm")) +
-                ", с " + start.format(DateTimeFormatter.ofPattern("dd.MM")) +
-                " по " + end.format(DateTimeFormatter.ofPattern("dd.MM"))
+        RepeatType.ONE_TIME -> "Разовое: $startStr"
+        RepeatType.REPEATING -> {
+            val unitStr = when (r.intervalUnit) {
+                IntervalUnit.MINUTES -> "мин"
+                IntervalUnit.HOURS -> "ч"
+                IntervalUnit.DAYS -> "дн"
+            }
+            val base = "Каждые ${r.intervalValue} $unitStr, с $startStr"
+            if (r.endEpochMillis != null) {
+                val end = Instant.ofEpochMilli(r.endEpochMillis)
+                    .atZone(ZoneId.systemDefault())
+                base + " по " + end.format(DateTimeFormatter.ofPattern("dd.MM HH:mm"))
+            } else {
+                base
+            }
         }
     }
 }
