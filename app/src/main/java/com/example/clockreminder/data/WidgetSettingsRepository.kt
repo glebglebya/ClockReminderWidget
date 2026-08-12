@@ -49,4 +49,12 @@ class WidgetSettingsRepository(context: Context) {
     fun setThemeMode(mode: WidgetThemeMode) {
         prefs.edit { putString("theme_mode", mode.name) }
     }
+
+    fun getHidePastReminders(): Boolean {
+        return prefs.getBoolean("hide_past_reminders", true)
+    }
+
+    fun setHidePastReminders(hide: Boolean) {
+        prefs.edit { putBoolean("hide_past_reminders", hide) }
+    }
 }

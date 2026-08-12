@@ -26,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -68,6 +69,7 @@ fun ReminderScreen(repo: ReminderRepository) {
     var circularStyle by remember { mutableStateOf(settings.getCircularStyle()) }
     var horizontalStyle by remember { mutableStateOf(settings.getHorizontalStyle()) }
     var widgetThemeMode by remember { mutableStateOf(settings.getThemeMode()) }
+    var hidePastReminders by remember { mutableStateOf(settings.getHidePastReminders()) }
 
     Scaffold(
         topBar = {
@@ -92,6 +94,22 @@ fun ReminderScreen(repo: ReminderRepository) {
         ) {
             // Секция настроек стиля виджета
             Column(Modifier.padding(16.dp)) {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Скрывать прошедшие", modifier = Modifier.weight(1f))
+                    Switch(
+                        checked = hidePastReminders,
+                        onCheckedChange = {
+                            hidePastReminders = it
+                            settings.setHidePastReminders(it)
+                            WidgetCommon.updateAllStyles(context)
+                        }
+                    )
+                }
+                Spacer(Modifier.height(8.dp))
+
                 Text("Тема виджета", style = MaterialTheme.typography.titleSmall)
                 Row(Modifier.fillMaxWidth()) {
                     FilterChip(

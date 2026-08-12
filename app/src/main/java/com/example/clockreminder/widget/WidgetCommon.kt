@@ -65,7 +65,7 @@ object WidgetCommon {
                     (minHeightDp * density).toInt().coerceAtLeast(512)
                 }
                 
-                val bmp = ClockFaceRenderer.render(context, wPx, hPx, reminders, style, isDark)
+                val bmp = ClockFaceRenderer.render(context, wPx, hPx, reminders, style, isDark, settings.getHidePastReminders())
                 
                 val views = RemoteViews(context.packageName, layoutId)
                 // Для Material 3 на Android 12+ можно было бы использовать динамические цвета 

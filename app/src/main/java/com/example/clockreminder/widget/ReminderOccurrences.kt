@@ -10,12 +10,16 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 
-/** Одно фактическое появление напоминания сегодня — время + цвет + подпись. */
-data class Occurrence(val time: LocalTime, val colorArgb: Int, val label: String)
+/** Одно фактическое появление напоминания — дата/время + цвет + подпись. */
+data class Occurrence(
+    val time: LocalTime,
+    val dateTime: LocalDateTime,
+    val colorArgb: Int,
+    val label: String
+)
 
 /**
- * Вычисляет все точки на циферблате, которые должны быть показаны СЕГОДНЯ,
- * исходя из правил повторения каждого напоминания.
+ * Вычисляет точки на циферблате, исходя из правил повторения напоминаний.
  */
 object ReminderOccurrences {
 
@@ -24,60 +28,77 @@ object ReminderOccurrences {
         today: LocalDate = LocalDate.now(),
         zone: ZoneId = ZoneId.systemDefault(),
     ): List<Occurrence> {
+        val start = today.atStartOfDay()
+        val end = today.plusDays(1).atStartOfDay()
+        return getOccurrencesInRange(reminders, start, end, zone)
+    }
+
+    fun getOccurrencesInRange(
+        reminders: List<Reminder>,
+        startDateTime: LocalDateTime,
+        endDateTime: LocalDateTime,
+        zone: ZoneId = ZoneId.systemDefault()
+    ): List<Occurrence> {
         val result = mutableListOf<Occurrence>()
-        val dayStartInstant = today.atStartOfDay(zone).toInstant()
-        val dayEndInstant = today.plusDays(1).atStartOfDay(zone).toInstant()
+        val startInstant = startDateTime.atZone(zone).toInstant()
+        val endInstant = endDateTime.atZone(zone).toInstant()
         
-        val dayStart = dayStartInstant.toEpochMilli()
-        val dayEnd = dayEndInstant.toEpochMilli()
+        val startMillis = startInstant.toEpochMilli()
+        val endMillis = endInstant.toEpochMilli()
 
         for (r in reminders) {
             if (!r.enabled) continue
             
             when (r.repeatType) {
                 RepeatType.ONE_TIME -> {
-                    if (r.startEpochMillis in (dayStart until dayEnd)) {
+                    if (r.startEpochMillis in (startMillis..endMillis)) {
                         val ldt = LocalDateTime.ofInstant(Instant.ofEpochMilli(r.startEpochMillis), zone)
-                        result.add(Occurrence(ldt.toLocalTime(), r.colorArgb, r.label))
+                        result.add(Occurrence(ldt.toLocalTime(), ldt, r.colorArgb, r.label))
                     }
                 }
                 RepeatType.REPEATING -> {
                     if (r.intervalValue <= 0) continue
-                    if (r.startEpochMillis >= dayEnd) continue
-                    if (r.endEpochMillis != null && r.endEpochMillis < dayStart) continue
+                    if (r.startEpochMillis >= endMillis) continue
+                    if (r.endEpochMillis != null && r.endEpochMillis < startMillis) continue
 
                     var current = Instant.ofEpochMilli(r.startEpochMillis).atZone(zone)
                     var occurrenceIndex = 0L
 
-                    // Пропускаем интервалы до начала сегодняшнего дня
-                    if (current.toInstant().isBefore(dayStartInstant)) {
+                    // Пропускаем интервалы до начала диапазона
+                    if (current.toInstant().isBefore(startInstant)) {
                         when (r.intervalUnit) {
                             IntervalUnit.MINUTES, IntervalUnit.HOURS -> {
                                 val unitMillis = if (r.intervalUnit == IntervalUnit.MINUTES) 60_000L else 3_600_000L
                                 val intervalMillis = r.intervalValue * unitMillis
-                                val diff = dayStart - r.startEpochMillis
+                                val diff = startMillis - r.startEpochMillis
                                 occurrenceIndex = (diff + intervalMillis - 1) / intervalMillis
                                 current = current.plus(occurrenceIndex * intervalMillis, ChronoUnit.MILLIS)
                             }
                             IntervalUnit.DAYS -> {
                                 val startLocalDate = current.toLocalDate()
-                                val daysBetween = ChronoUnit.DAYS.between(startLocalDate, today)
+                                val daysBetween = ChronoUnit.DAYS.between(startLocalDate, startDateTime.toLocalDate())
                                 occurrenceIndex = (daysBetween + r.intervalValue - 1) / r.intervalValue
                                 current = current.plusDays(occurrenceIndex * r.intervalValue)
+                                
+                                // Если после прибавления дней мы всё еще до startMillis (из-за времени), шагаем еще
+                                while (current.toInstant().toEpochMilli() < startMillis) {
+                                    current = current.plusDays(r.intervalValue.toLong())
+                                    occurrenceIndex++
+                                }
                             }
                         }
                     }
 
-                    // Собираем все вхождения в течение сегодняшнего дня
-                    while (current.toInstant().isBefore(dayEndInstant)) {
+                    // Собираем вхождения в диапазоне
+                    while (!current.toInstant().isAfter(endInstant)) {
                         val t = current.toInstant().toEpochMilli()
                         
-                        // Проверяем лимиты: дата окончания и количество повторений
                         if (r.endEpochMillis != null && t > r.endEpochMillis) break
                         if (r.repeatCount != null && occurrenceIndex >= r.repeatCount) break
 
-                        if (t >= dayStart) {
-                            result.add(Occurrence(current.toLocalTime(), r.colorArgb, r.label))
+                        if (t >= startMillis) {
+                            val ldt = current.toLocalDateTime()
+                            result.add(Occurrence(ldt.toLocalTime(), ldt, r.colorArgb, r.label))
                         }
                         
                         current = when (r.intervalUnit) {

@@ -7,8 +7,9 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.os.Build
 import com.example.clockreminder.model.Reminder
-import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.ZoneId
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -31,10 +32,11 @@ object ClockFaceRenderer {
         heightPx: Int,
         reminders: List<Reminder>,
         faceStyle: WidgetStyle = WidgetStyle.STYLE_1,
-        isDark: Boolean = true
+        isDark: Boolean = true,
+        hidePast: Boolean = true
     ): Bitmap {
         if (faceStyle == WidgetStyle.STYLE_5) {
-            return renderHorizontal(context, widthPx, heightPx, reminders, isDark)
+            return renderHorizontal(context, widthPx, heightPx, reminders, isDark, hidePast)
         }
 
         val sizePx = minOf(widthPx, heightPx)
@@ -105,30 +107,67 @@ object ClockFaceRenderer {
             }
         }
 
-        // --- кружки-напоминания сегодняшнего дня ---
-        val now = LocalTime.now()
-        val isNowPm = now.hour >= 12
+        // --- кружки-напоминания (Умная фильтрация) ---
+        val now = LocalDateTime.now()
+        val zone = ZoneId.systemDefault()
         
-        val occurrences = ReminderOccurrences.todaysOccurrences(reminders, LocalDate.now())
+        // Определяем временной диапазон для отображения
+        val isPm = now.hour >= 12
+        val (rangeStart, rangeEnd) = if (is12h) {
+            if (!isPm) {
+                // AM Phase: от начала дня до полудня (если не скрываем прошедшие)
+                val start = if (hidePast) now else now.toLocalDate().atStartOfDay()
+                start to now.with(LocalTime.NOON)
+            } else {
+                // PM Phase: от полудня до полуночи (завтра 00:00)
+                val start = if (hidePast) now else now.with(LocalTime.NOON)
+                start to now.toLocalDate().plusDays(1).atStartOfDay()
+            }
+        } else {
+            // 24h: от начала суток до полуночи (завтра 00:00)
+            val start = if (hidePast) now else now.toLocalDate().atStartOfDay()
+            start to now.toLocalDate().plusDays(1).atStartOfDay()
+        }
+        
+        val allOccurrences = ReminderOccurrences.getOccurrencesInRange(reminders, rangeStart, rangeEnd, zone)
+            .filter { occ ->
+                // "не отображаем на 24часовых циферблатах 00:00 и не отображаем на двенадцатичасовых циферблатах 12:00 и 00:00 если те уже прошли"
+                val isPassed = occ.dateTime.isBefore(now.minusMinutes(1)) // 1 мин запас
+                if (isPassed) {
+                    val time = occ.time
+                    val isBoundary = if (is12h) {
+                        (time.hour == 0 && time.minute == 0) || (time.hour == 12 && time.minute == 0)
+                    } else {
+                        (time.hour == 0 && time.minute == 0)
+                    }
+                    if (isBoundary) return@filter false
+                }
+                true
+            }
+        
+        val occurrences = allOccurrences.groupBy { it.time }
+
         val dotRadius = sizePx * 0.02f
-        val dotOrbit = radius * 0.625f
-        for (occ in occurrences) {
-            if (is12h) {
-                val isOccPm = occ.time.hour >= 12
-                if (isOccPm != isNowPm) continue
-            }
-            
-            val hourValue = if (is12h) (occ.time.hour % 12).toDouble() else occ.time.hour.toDouble()
-            val hourFraction = hourValue + occ.time.minute / 60.0
+        val baseDotOrbit = radius * 0.625f
+        
+        for ((_, timeOccs) in occurrences) {
+            val firstOcc = timeOccs.first()
+            val hourValue = if (is12h) (firstOcc.time.hour % 12).toDouble() else firstOcc.time.hour.toDouble()
+            val hourFraction = hourValue + firstOcc.time.minute / 60.0
             val angle = Math.toRadians((hourFraction / cycle) * 360.0 - 90.0)
-            val dx = cx + dotOrbit * cos(angle).toFloat()
-            val dy = cy + dotOrbit * sin(angle).toFloat()
-            val dotFill = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                color = occ.colorArgb
-                style = Paint.Style.FILL
-                setShadowLayer(sizePx * 0.02f, 0f, 0f, occ.colorArgb)
+            
+            timeOccs.forEachIndexed { index, occ ->
+                val currentOrbit = baseDotOrbit - (index * dotRadius * 2.2f)
+                val dx = cx + currentOrbit * cos(angle).toFloat()
+                val dy = cy + currentOrbit * sin(angle).toFloat()
+                
+                val dotFill = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                    color = occ.colorArgb
+                    style = Paint.Style.FILL
+                    setShadowLayer(sizePx * 0.02f, 0f, 0f, occ.colorArgb)
+                }
+                canvas.drawCircle(dx, dy, dotRadius, dotFill)
             }
-            canvas.drawCircle(dx, dy, dotRadius, dotFill)
         }
 
         // --- стрелки ---
@@ -170,7 +209,14 @@ object ClockFaceRenderer {
         return bmp
     }
 
-    private fun renderHorizontal(context: Context, width: Int, height: Int, reminders: List<Reminder>, isDark: Boolean): Bitmap {
+    private fun renderHorizontal(
+        context: Context,
+        width: Int,
+        height: Int,
+        reminders: List<Reminder>,
+        isDark: Boolean,
+        hidePast: Boolean
+    ): Bitmap {
         val bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bmp)
         
@@ -229,17 +275,42 @@ object ClockFaceRenderer {
         }
 
         // Напоминания
-        val occurrences = ReminderOccurrences.todaysOccurrences(reminders, LocalDate.now())
-        val dotRadius = height * 0.08f.coerceAtMost(25f)
-        for (occ in occurrences) {
-            val hourFraction = occ.time.hour + occ.time.minute / 60.0
-            val x = padding + (hourFraction.toFloat() / 24f) * scaleWidth
-            val dotFill = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                color = occ.colorArgb
-                style = Paint.Style.FILL
-                setShadowLayer(dotRadius * 1.5f, 0f, 0f, occ.colorArgb)
+        val nowDateTime = LocalDateTime.now()
+        val startRange = if (hidePast) nowDateTime else nowDateTime.toLocalDate().atStartOfDay()
+        val endOfDay = nowDateTime.toLocalDate().plusDays(1).atStartOfDay()
+        
+        val allOccurrences = ReminderOccurrences.getOccurrencesInRange(reminders, startRange, endOfDay)
+            .filter { occ ->
+                // Для 24ч (горизонтальный) не показываем прошедшую полночь 00:00
+                val isPassed = occ.dateTime.isBefore(nowDateTime.minusMinutes(1))
+                if (isPassed && occ.time.hour == 0 && occ.time.minute == 0) return@filter false
+                true
             }
-            canvas.drawCircle(x, dotY, dotRadius, dotFill)
+        
+        val occurrences = allOccurrences.groupBy { it.dateTime }
+            
+        val dotRadius = height * 0.08f.coerceAtMost(25f)
+        for ((occDateTime, timeOccs) in occurrences) {
+            // Рассчитываем позицию на шкале 0..24. 
+            // Если это уже следующий день (полночь), ставим на 24.0
+            val hourFraction = if (occDateTime.toLocalDate().isAfter(nowDateTime.toLocalDate())) {
+                24.0
+            } else {
+                occDateTime.hour + occDateTime.minute / 60.0
+            }
+            
+            val x = padding + (hourFraction.toFloat() / 24f) * scaleWidth
+            
+            timeOccs.forEachIndexed { index, occ ->
+                val currentDotY = dotY + (index * dotRadius * 2.2f)
+                
+                val dotFill = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                    color = occ.colorArgb
+                    style = Paint.Style.FILL
+                    setShadowLayer(dotRadius * 1.5f, 0f, 0f, occ.colorArgb)
+                }
+                canvas.drawCircle(x, currentDotY, dotRadius, dotFill)
+            }
         }
 
         // Индикатор
