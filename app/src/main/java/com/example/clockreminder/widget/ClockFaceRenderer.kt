@@ -51,7 +51,6 @@ object ClockFaceRenderer {
 
         // Цвета Material 3 / Dynamic Colors
         val bgColor = getDynamicColor(context, isDark, "surface", if (isDark) "#1C1B1F" else "#FFFBFE")
-        val ringColor = getDynamicColor(context, isDark, "outline", if (isDark) "#49454F" else "#CAC4D0")
         val tickColor = getDynamicColor(context, isDark, "outlineVariant", if (isDark) "#938F99" else "#79747E")
         val labelColor = getDynamicColor(context, isDark, "onSurface", if (isDark) "#FFFFFF" else "#000000")
         val handColor = getDynamicColor(context, isDark, "onSurface", if (isDark) "#FFFFFF" else "#000000")
@@ -64,12 +63,6 @@ object ClockFaceRenderer {
         }
         canvas.drawCircle(cx, cy, radius, bgPaint)
 
-        val ringPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = ringColor
-            style = Paint.Style.STROKE
-            strokeWidth = sizePx * 0.02f
-        }
-        canvas.drawCircle(cx, cy, radius, ringPaint)
 
         val tickPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = tickColor
@@ -222,7 +215,6 @@ object ClockFaceRenderer {
         
         // Цвета Material 3 / Dynamic Colors
         val bgColor = getDynamicColor(context, isDark, "surface", if (isDark) "#1C1B1F" else "#FFFBFE")
-        val ringColor = getDynamicColor(context, isDark, "outline", if (isDark) "#49454F" else "#CAC4D0")
         val tickColor = getDynamicColor(context, isDark, "outlineVariant", if (isDark) "#938F99" else "#79747E")
         val labelColor = getDynamicColor(context, isDark, "onSurface", if (isDark) "#FFFFFF" else "#000000")
         val accentColor = getDynamicColor(context, isDark, "primary", if (isDark) "#D0BCFF" else "#6750A4")
@@ -244,13 +236,6 @@ object ClockFaceRenderer {
         }
         canvas.drawRoundRect(0f, 0f, width.toFloat(), height.toFloat(), cornerRadius, cornerRadius, bgPaint)
 
-        // Обводка
-        val ringPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = ringColor
-            style = Paint.Style.STROKE
-            strokeWidth = height * 0.04f.coerceAtMost(6f)
-        }
-        canvas.drawRoundRect(0f, 0f, width.toFloat(), height.toFloat(), cornerRadius, cornerRadius, ringPaint)
 
         val tickPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = tickColor
